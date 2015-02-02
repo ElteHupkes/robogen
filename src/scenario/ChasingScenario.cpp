@@ -51,9 +51,9 @@ bool ChasingScenario::setupSimulation() {
 
 }
 
-bool ChasingScenario::init(dWorldID odeWorld, dSpaceID odeSpace, boost::shared_ptr<Robot> robot) {
+bool ChasingScenario::init(dWorldID odeWorld, dSpaceID odeSpace, std::vector<boost::shared_ptr<Robot>> robots) {
 
-	Scenario::init(odeWorld, odeSpace, robot);
+	Scenario::init(odeWorld, odeSpace, robots);
 
 	boost::shared_ptr<Environment> env(new Environment());
 	env->setAmbientLight(0.04);

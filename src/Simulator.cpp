@@ -87,14 +87,22 @@ unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
 		// ---------------------------------------
 		// Generate Robot
 		// ---------------------------------------
-		boost::shared_ptr<Robot> robot(new Robot);
-		if (!robot->init(odeWorld, odeSpace, robotMessage)) {
-			std::cout << "Problems decoding the robot. Quit."
-					<< std::endl;
-			return SIMULATION_FAILURE;
+		unsigned int nRobots = 1;
+		std::vector< boost::shared_ptr<Robot> > robots;
+		robots.reserve(nRobots);
+		for (unsigned int i = 0; i < nRobots; i++) {
+			robots.push_back( boost::shared_ptr<Robot>(new Robot));
+
+			if (!robots[i]->init(odeWorld, odeSpace, robotMessage)) {
+				std::cout << "Problems decoding the robot. Quit."
+						<< std::endl;
+				return SIMULATION_FAILURE;
+			}
 		}
 
-
+		// For logging and basic output, we'll just pretend we have only
+		// one robot, since we don't care about any of that anyhow.
+		boost::shared_ptr<Robot> robot = robots[0];
 		if (log) {
 			if (!log->init(robot, configuration)) {
 				std::cout << "Problem initializing log!" << std::endl;
@@ -106,18 +114,11 @@ unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
 				<< ", trial: " << scenario->getCurTrial()
 				<< std::endl;
 
+
 		// Register sensors
 		std::vector<boost::shared_ptr<Sensor> > sensors =
 				robot->getSensors();
-		std::vector<boost::shared_ptr<TouchSensor> > touchSensors;
-		for (unsigned int i = 0; i < sensors.size(); ++i) {
-			if (boost::dynamic_pointer_cast<TouchSensor>(
-					sensors[i])) {
-				touchSensors.push_back(
-						boost::dynamic_pointer_cast<TouchSensor>(
-								sensors[i]));
-			}
-		}
+
 
 		// Register robot motors
 		std::vector<boost::shared_ptr<Motor> > motors =
@@ -341,9 +342,7 @@ unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
 			}
 
 			if(log) {
-				log->logPosition(
-					scenario->getRobot(
-							)->getCoreComponent()->getRootPosition());
+				log->logPosition(robot->getCoreComponent()->getRootPosition());
 			}
 
 			t += step;

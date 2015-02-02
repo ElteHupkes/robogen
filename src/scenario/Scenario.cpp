@@ -45,12 +45,13 @@ Scenario::~Scenario() {
 }
 
 bool Scenario::init(dWorldID odeWorld, dSpaceID odeSpace,
-		boost::shared_ptr<Robot> robot) {
+		std::vector<boost::shared_ptr<Robot>> robots) {
 
 	odeWorld_ = odeWorld;
 	odeSpace_ = odeSpace;
 
-	robot_ = robot;
+	// Don't know how this is used - just assign first robot.
+	robot_ = robots[0];
 
 	// Setup terrain
 	boost::shared_ptr<TerrainConfig> terrainConfig =
@@ -67,6 +68,7 @@ bool Scenario::init(dWorldID odeWorld, dSpaceID odeSpace,
 	}
 
 	// Setup robot position
+	// TODO Change this to use *all* robot positions
 	double minX = 0;
 	double maxX = 0;
 	double minY = 0;

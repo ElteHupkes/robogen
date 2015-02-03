@@ -1,6 +1,6 @@
 simulatorConfFile=conf.txt
 referenceRobotFile=simpleRobot.txt
-mu=100
+mu=2
 lambda=100
 selection=deterministic-tournament
 replacement=plus

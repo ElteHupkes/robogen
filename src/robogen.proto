@@ -87,6 +87,7 @@ message SimulatorConf {
   required float terrainFriction = 10;
   required float sensorNoiseLevel = 11;
   required float motorNoiseLevel = 12;
+  required int32 nBots = 13;
 }
 
 message EvaluationRequest {

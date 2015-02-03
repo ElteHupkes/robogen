@@ -198,53 +198,54 @@ int main(int argc, char *argv[]) {
 		return exitRobogen(EXIT_FAILURE);
 	}
 
-	for (unsigned int generation = 2; generation <= conf->numGenerations;
-			++generation) {
-		// create children
-		IndividualContainer children;
-		if (hyperNEAT) {
-			//neatPopulation->Epoch();
-			if(!neatContainer->produceNextGeneration(population)) {
-				std::cout << "Producing next generation from NEAT failed."
-						<< std::endl;
-				return exitRobogen(EXIT_FAILURE);
-			}
-			population->evaluate(robotConf, sockets);
-			population->sort(true);
-		} else {
-			selector->initPopulation(population);
-			for (unsigned int i = 0; i < conf->lambda; i++) {
-				std::pair<boost::shared_ptr<RobotRepresentation>,
-						boost::shared_ptr<RobotRepresentation> > selection;
-				if (!selector->select(selection)) {
-					std::cout << "Selector::select() failed." << std::endl;
-					return exitRobogen(EXIT_FAILURE);
-				}
-				children.push_back(
-						mutator->mutate(selection.first, selection.second));
-			}
-
-			// evaluate children
-			children.evaluate(robotConf, sockets);
-
-			// comma or plus?
-			if (conf->replacement == conf->PLUS_REPLACEMENT) {
-				children += *population.get();
-			}
-
-			// replace
-			population.reset(new Population());
-			if (!population->init(children, conf->mu)) {
-				std::cout << "Error when initializing population!" << std::endl;
-				return exitRobogen(EXIT_FAILURE);
-			}
-		}
-
-
-		if (!log->logGeneration(generation, *population.get())) {
-			return exitRobogen(EXIT_FAILURE);
-		}
-	}
+	// Just benchmarking the ODE performance now - don't evolve next generations.
+//	for (unsigned int generation = 2; generation <= conf->numGenerations;
+//			++generation) {
+//		// create children
+//		IndividualContainer children;
+//		if (hyperNEAT) {
+//			//neatPopulation->Epoch();
+//			if(!neatContainer->produceNextGeneration(population)) {
+//				std::cout << "Producing next generation from NEAT failed."
+//						<< std::endl;
+//				return exitRobogen(EXIT_FAILURE);
+//			}
+//			population->evaluate(robotConf, sockets);
+//			population->sort(true);
+//		} else {
+//			selector->initPopulation(population);
+//			for (unsigned int i = 0; i < conf->lambda; i++) {
+//				std::pair<boost::shared_ptr<RobotRepresentation>,
+//						boost::shared_ptr<RobotRepresentation> > selection;
+//				if (!selector->select(selection)) {
+//					std::cout << "Selector::select() failed." << std::endl;
+//					return exitRobogen(EXIT_FAILURE);
+//				}
+//				children.push_back(
+//						mutator->mutate(selection.first, selection.second));
+//			}
+//
+//			// evaluate children
+//			children.evaluate(robotConf, sockets);
+//
+//			// comma or plus?
+//			if (conf->replacement == conf->PLUS_REPLACEMENT) {
+//				children += *population.get();
+//			}
+//
+//			// replace
+//			population.reset(new Population());
+//			if (!population->init(children, conf->mu)) {
+//				std::cout << "Error when initializing population!" << std::endl;
+//				return exitRobogen(EXIT_FAILURE);
+//			}
+//		}
+//
+//
+//		if (!log->logGeneration(generation, *population.get())) {
+//			return exitRobogen(EXIT_FAILURE);
+//		}
+//	}
 
 	// Clean up sockets
 	for (unsigned int i = 0; i < conf->sockets.size(); i++) {

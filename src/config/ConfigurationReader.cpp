@@ -86,7 +86,10 @@ boost::shared_ptr<RobogenConfig> ConfigurationReader::parseConfigurationFile(
 			)
 			("startPositionConfigFile",
 			boost::program_options::value<std::string>(),
-			"Start Positions Configuration File");
+			"Start Positions Configuration File")(
+				"nBots", boost::program_options::value<int>(),
+				"Number of bots in the stress test."
+			);
 
 	if (fileName == "help") {
 		desc.print(std::cout);
@@ -297,12 +300,15 @@ boost::shared_ptr<RobogenConfig> ConfigurationReader::parseConfigurationFile(
 
 	vm["terrainFriction"].as<float>();
 
+	// Read nr of bots - stress test only, this is unchecked!
+	int nBots = vm["nBots"].as<int>();
+
 	return boost::shared_ptr<RobogenConfig>(
 			new RobogenConfig(simulationScenario, nTimesteps,
 					timeStep, actuationPeriod, terrain,
 					obstacles, obstaclesConfigFile, startPositions,
 					startPositionFile, lightSourceHeight, sensorNoiseLevel,
-					motorNoiseLevel));
+					motorNoiseLevel, nBots));
 
 }
 
@@ -502,12 +508,14 @@ boost::shared_ptr<RobogenConfig> ConfigurationReader::parseRobogenMessage(
 	float sensorNoiseLevel = simulatorConf.sensornoiselevel();
 	float motorNoiseLevel = simulatorConf.motornoiselevel();
 
+	int nBots = simulatorConf.nbots();
+
 	return boost::shared_ptr<RobogenConfig>(
 			new RobogenConfig(simulationScenario, timeSteps, timeStepLength,
 					actuationPeriod, terrain, obstacles, "",
 					boost::shared_ptr<StartPositionConfig>(
 							new StartPositionConfig(startPositions)), "",
-					lightSourceHeight, sensorNoiseLevel, motorNoiseLevel
+					lightSourceHeight, sensorNoiseLevel, motorNoiseLevel, nBots
 
 					));
 

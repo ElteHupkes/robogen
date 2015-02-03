@@ -59,7 +59,7 @@ public:
 			std::string obstacleFile,
 			boost::shared_ptr<StartPositionConfig> startPositions,
 			std::string startPosFile, float lightSourceHeight,
-			float sensorNoiseLevel, float motorNoiseLevel) :
+			float sensorNoiseLevel, float motorNoiseLevel, int nBots) :
 				scenario_(scenario), timeSteps_(timeSteps),
 				timeStepLength_(timeStepLength),
 				actuationPeriod_(actuationPeriod),
@@ -69,7 +69,8 @@ public:
 				startPosFile_(startPosFile),
 				lightSourceHeight_(lightSourceHeight),
 				sensorNoiseLevel_(sensorNoiseLevel),
-				motorNoiseLevel_(motorNoiseLevel) {
+				motorNoiseLevel_(motorNoiseLevel),
+				nBots_(nBots) {
 
 		simulationTime_ = timeSteps * timeStepLength;
 
@@ -183,6 +184,13 @@ public:
 	}
 
 	/**
+	 * @return Number of bots in the stress test
+	 */
+	int getNBots() {
+		return nBots_;
+	}
+
+	/**
 	 * Convert configuration into configuration message.
 	 */
 	robogenMessage::SimulatorConf serialize() const{
@@ -201,6 +209,7 @@ public:
 		ret.set_terrainfriction(terrain_->getFriction());
 		ret.set_sensornoiselevel(sensorNoiseLevel_);
 		ret.set_motornoiselevel(motorNoiseLevel_);
+		ret.set_nbots(nBots_);
 		obstacles_->serialize(ret);
 		startPositions_->serialize(ret);
 		return ret;
@@ -217,6 +226,11 @@ private:
 	 * Total number of simulation timesteps
 	 */
 	unsigned int timeSteps_;
+
+	/**
+	 * Number of bots in the stress test
+	 */
+	unsigned int nBots_;
 
 	/**
 	 * Time step duration

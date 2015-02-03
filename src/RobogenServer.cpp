@@ -216,6 +216,7 @@ int main(int argc, char* argv[]) {
 					return exitRobogen(EXIT_FAILURE);
 				}
 
+				// Evolver will break after the first result
 			}
 
 		} else {

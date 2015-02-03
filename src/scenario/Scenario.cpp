@@ -26,6 +26,7 @@
  * @(#) $Id$
  */
 #include <iostream>
+#include <math.h>
 #include "config/RobogenConfig.h"
 #include "config/TerrainConfig.h"
 #include "model/objects/BoxObstacle.h"
@@ -45,7 +46,7 @@ Scenario::~Scenario() {
 }
 
 bool Scenario::init(dWorldID odeWorld, dSpaceID odeSpace,
-		std::vector<boost::shared_ptr<Robot>> robots) {
+		std::vector< boost::shared_ptr<Robot> > robots) {
 
 	odeWorld_ = odeWorld;
 	odeSpace_ = odeSpace;
@@ -56,6 +57,10 @@ bool Scenario::init(dWorldID odeWorld, dSpaceID odeSpace,
 	// Setup terrain
 	boost::shared_ptr<TerrainConfig> terrainConfig =
 			robogenConfig_->getTerrainConfig();
+
+	float terrainLength = terrainConfig->getLength();
+	float terrainWidth = terrainConfig->getWidth();
+	float radius = 0.2 * std::min(terrainLength, terrainWidth);
 
 	terrain_.reset(new Terrain(odeWorld_, odeSpace_));
 	if (terrainConfig->isFlat()) {
@@ -68,7 +73,6 @@ bool Scenario::init(dWorldID odeWorld, dSpaceID odeSpace,
 	}
 
 	// Setup robot position
-	// TODO Change this to use *all* robot positions
 	double minX = 0;
 	double maxX = 0;
 	double minY = 0;
@@ -76,84 +80,39 @@ bool Scenario::init(dWorldID odeWorld, dSpaceID odeSpace,
 	double minZ = 0;
 	double maxZ = 0;
 
-	// Starting position and orientation
-	osg::Vec2 startingPosition =
-			robogenConfig_->getStartingPos()->getStartPosition(
-					startPositionId_)->getPosition();
-	float startingAzimuth = robogenConfig_->getStartingPos()->getStartPosition(
-			startPositionId_)->getAzimuth();
-	osg::Quat roboRot;
-	roboRot.makeRotate(osg::inDegrees(startingAzimuth), osg::Vec3(0,0,1));
+	unsigned int nBots = robots.size();
+	double shift = 2.0 * M_PI / nBots;
+	for (unsigned int i = 0; i < nBots; ++i) {
+		boost::shared_ptr<Robot> robot = robots[i];
 
-	robot->rotateRobot(roboRot);
-	robot->getBB(minX, maxX, minY, maxY, minZ, maxZ);
-	robot->translateRobot(
-			osg::Vec3(startingPosition.x() - (maxX - minX) / 2,
-					startingPosition.y() - (maxY - minY) / 2,
-					terrainConfig->getHeight() + inMm(2) - minZ));
-	robot->getBB(minX, maxX, minY, maxY, minZ, maxZ);
+		// Starting position and orientation
+		// Like the other stress test, I will just position the bots on a circle
+		// with the radius calculated further above.
+		// I'll need an actual working controller to have them move into each
+		// other though..
+		double angle = i * shift;
+		double x = radius * cos(angle);
+		double y = radius * sin(angle);
+		osg::Vec2 startingPosition(x, y);
 
-	std::cout
-			<< "The robot is enclosed in the AABB(minX, maxX, minY, maxY, minZ, maxZ) ("
-			<< minX << ", " << maxX << ", " << minY << ", " << maxY << ", "
-			<< minZ << ", " << maxZ << ")" << std::endl;
-	std::cout << "Obstacles in this range will not be generated" << std::endl << std::endl;
+		std::cout << "angle: " << angle << std::endl;
+		std::cout << "i: " << i << ", x: " << x << " y: " << y << std::endl;
 
-	// Setup obstacles
-	boost::shared_ptr<ObstaclesConfig> obstacles =
-			robogenConfig_->getObstaclesConfig();
+		float startingAzimuth = 1.5 * M_PI - angle;
+		osg::Quat roboRot;
+		roboRot.makeRotate(startingAzimuth, osg::Vec3(0,0,1));
 
-	// Instance the boxes above the maximum terrain height
-	const std::vector<osg::Vec3>& c = obstacles->getCoordinates();
-	const std::vector<osg::Vec3>& s = obstacles->getSizes();
-	const std::vector<float>& d = obstacles->getDensities();
-	const std::vector<osg::Vec3>& rotationAxis = obstacles->getRotationAxes();
-	const std::vector<float>& rotationAngles = obstacles->getRotationAngles();
-
-	for (unsigned int i = 0; i < c.size(); ++i) {
-		boost::shared_ptr<BoxObstacle> obstacle(
-									new BoxObstacle(odeWorld_, odeSpace_, c[i],
-											s[i], d[i], rotationAxis[i],
-											rotationAngles[i]));
-		double oMinX, oMaxX, oMinY, oMaxY, oMinZ, oMaxZ;
-		obstacle->getAABB(oMinX, oMaxX, oMinY, oMaxY, oMinZ, oMaxZ);
-
-		/*
-		float oMinX = c[i].x() - s[i].x() / 2;
-		float oMaxX = c[i].x() + s[i].x() / 2;
-		float oMinY = c[i].y() - s[i].y() / 2;
-		float oMaxY = c[i].y() + s[i].y() / 2;
-		float oMinZ = c[i].z() - s[i].z() / 2;
-		float oMaxZ = c[i].z() + s[i].z() / 2;
-		 */
-
-		// Do not insert the obstacle if it is in the robot range
-		bool inRangeX = false;
-		if ((oMinX <= minX && oMaxX >= maxX) || (oMinX >= minX && oMinX <= maxX)
-				|| (oMaxX >= minX && oMaxX <= maxX)) {
-			inRangeX = true;
-		}
-
-		bool inRangeY = false;
-		if ((oMinY <= minY && oMaxY >= maxY) || (oMinY >= minY && oMinY <= maxY)
-				|| (oMaxY >= minY && oMaxY <= maxY)) {
-			inRangeY = true;
-		}
-
-		bool inRangeZ = false;
-		if ((oMinZ <= minZ && oMaxZ >= maxZ) || (oMinZ >= minZ && oMinZ <= maxZ)
-				|| (oMaxZ >= minZ && oMaxZ <= maxZ)) {
-			inRangeZ = true;
-		}
-
-		// Do not insert obstacles in the robot range
-		if (!(inRangeX && inRangeY && inRangeZ)) {
-			obstacles_.push_back(obstacle);
-		} else {
-			obstacle->remove();
-		}
-
+		robot->rotateRobot(roboRot);
+		robot->getBB(minX, maxX, minY, maxY, minZ, maxZ);
+		robot->translateRobot(
+				osg::Vec3(startingPosition.x() - (maxX - minX) / 2,
+						startingPosition.y() - (maxY - minY) / 2,
+						terrainConfig->getHeight() + inMm(2) - minZ));
 	}
+
+
+	// Removed obstacles code here - if you want it back, check master branch
+	// This also means I removed the bounding boxes, etc
 
 	return true;
 }

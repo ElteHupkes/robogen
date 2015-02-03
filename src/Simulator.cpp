@@ -85,9 +85,9 @@ unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
 		odeContactGroup = dJointGroupCreate(0);
 
 		// ---------------------------------------
-		// Generate Robot
+		// Generate Robots
 		// ---------------------------------------
-		unsigned int nRobots = 1;
+		unsigned int nRobots = configuration->getNBots();
 		std::vector< boost::shared_ptr<Robot> > robots;
 		robots.reserve(nRobots);
 		for (unsigned int i = 0; i < nRobots; i++) {
@@ -131,7 +131,7 @@ unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
 				robot->getBodyParts();
 
 		// Initialize scenario
-		if (!scenario->init(odeWorld, odeSpace, robot)) {
+		if (!scenario->init(odeWorld, odeSpace, robots)) {
 			std::cout << "Cannot initialize scenario. Quit."
 					<< std::endl;
 			return SIMULATION_FAILURE;
@@ -361,6 +361,8 @@ unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
 
 		// Destroy robot (because of associated ODE joint group)
 		robot.reset();
+		robots.clear();
+
 		// has shared pointer in scenario, so destroy that too
 		scenario->prune();
 

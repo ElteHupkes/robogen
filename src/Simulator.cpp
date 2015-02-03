@@ -87,6 +87,9 @@ unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
 		// ---------------------------------------
 		// Generate Robots
 		// ---------------------------------------
+		// Body parts as to be rendered by the viewer
+		std::vector<boost::shared_ptr<Model> > viewerBodyParts;
+
 		unsigned int nRobots = configuration->getNBots();
 		std::vector< boost::shared_ptr<Robot> > robots;
 		robots.reserve(nRobots);
@@ -98,37 +101,26 @@ unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
 						<< std::endl;
 				return SIMULATION_FAILURE;
 			}
+
+			const std::vector<boost::shared_ptr<Model> > &robotBodyParts = robots[i]->getBodyParts();
+
+			for (unsigned int j = 0; j < robotBodyParts.size(); j++) {
+				viewerBodyParts.push_back(robotBodyParts[j]);
+			}
 		}
 
 		// For logging and basic output, we'll just pretend we have only
 		// one robot, since we don't care about any of that anyhow.
-		boost::shared_ptr<Robot> robot = robots[0];
 		if (log) {
-			if (!log->init(robot, configuration)) {
+			if (!log->init(robots[0], configuration)) {
 				std::cout << "Problem initializing log!" << std::endl;
 				return SIMULATION_FAILURE;
 			}
 		}
 
-		std::cout << "Evaluating individual " << robot->getId()
+		std::cout << "Evaluating individual " << robots[0]->getId()
 				<< ", trial: " << scenario->getCurTrial()
 				<< std::endl;
-
-
-		// Register sensors
-		std::vector<boost::shared_ptr<Sensor> > sensors =
-				robot->getSensors();
-
-
-		// Register robot motors
-		std::vector<boost::shared_ptr<Motor> > motors =
-				robot->getMotors();
-
-		// Register brain and body parts
-		boost::shared_ptr<NeuralNetwork> neuralNetwork =
-				robot->getBrain();
-		std::vector<boost::shared_ptr<Model> > bodyParts =
-				robot->getBodyParts();
 
 		// Initialize scenario
 		if (!scenario->init(odeWorld, odeSpace, robots)) {
@@ -148,7 +140,7 @@ unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
 		}
 
 		bool visualize = (viewer != NULL);
-		if(visualize && !viewer->configureScene(bodyParts, scenario)) {
+		if(visualize && !viewer->configureScene(viewerBodyParts, scenario)) {
 			std::cout << "Cannot configure scene. Quit."
 					<< std::endl;
 			return SIMULATION_FAILURE;
@@ -194,155 +186,175 @@ unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
 			// Empty contact groups used for collisions handling
 			dJointGroupEmpty(odeContactGroup);
 
-#ifdef CAP_ACCELERATION
-			dBodyID rootBody =
-					robot->getCoreComponent()->getRoot();
-			const dReal *angVel, *linVel;
+			// Ignore acceleration cap for now
+//#ifdef CAP_ACCELERATION
+//			dBodyID rootBody =
+//					robot->getCoreComponent()->getRoot();
+//			const dReal *angVel, *linVel;
+//
+//			angVel = dBodyGetAngularVel(rootBody);
+//			linVel = dBodyGetLinearVel(rootBody);
+//
+//			if(t > 0) {
+//				double angAccel = dCalcPointsDistance3(
+//						angVel, previousAngVel);
+//				double linAccel = dCalcPointsDistance3(
+//						linVel, previousLinVel);
+//
+//				if(angAccel > MAX_ANGULAR_ACCELERATION ||
+//						linAccel > MAX_LINEAR_ACCELERATION) {
+//					printf("EVALUATION CANCELED: max accel");
+//					printf(" exceeded at time %f.", t);
+//					printf(" Angular accel: %f, Linear accel: %f.\n",
+//							angAccel, linAccel);
+//					printf("Will give 0 fitness.\n");
+//					accelerationCapExceeded = true;
+//					break;
+//				}
+//
+//			}
+//
+//			// save current velocities as previous
+//			for(unsigned int j=0; j<3; j++) {
+//				previousAngVel[j] = angVel[j];
+//				previousLinVel[j] = linVel[j];
+//			}
+//#endif
 
-			angVel = dBodyGetAngularVel(rootBody);
-			linVel = dBodyGetLinearVel(rootBody);
-
-			if(t > 0) {
-				double angAccel = dCalcPointsDistance3(
-						angVel, previousAngVel);
-				double linAccel = dCalcPointsDistance3(
-						linVel, previousLinVel);
-
-				if(angAccel > MAX_ANGULAR_ACCELERATION ||
-						linAccel > MAX_LINEAR_ACCELERATION) {
-					printf("EVALUATION CANCELED: max accel");
-					printf(" exceeded at time %f.", t);
-					printf(" Angular accel: %f, Linear accel: %f.\n",
-							angAccel, linAccel);
-					printf("Will give 0 fitness.\n");
-					accelerationCapExceeded = true;
-					break;
-				}
-
-			}
-
-			// save current velocities as previous
-			for(unsigned int j=0; j<3; j++) {
-				previousAngVel[j] = angVel[j];
-				previousLinVel[j] = linVel[j];
-			}
-#endif
-
-
-			float networkInput[MAX_INPUT_NEURONS];
-			float networkOutputs[MAX_OUTPUT_NEURONS];
 
 			// Elapsed time since last call
 			env->setTimeElapsed(step);
 
-			// Update Sensors
-			for (unsigned int i = 0; i < bodyParts.size();
-					++i) {
-				if (boost::dynamic_pointer_cast<
-						PerceptiveComponent>(bodyParts[i])) {
-					boost::dynamic_pointer_cast<
-							PerceptiveComponent>(bodyParts[i])->updateSensors(
-							env);
-				}
-			}
+			for (unsigned int j = 0; j < nRobots; j++) {
+				boost::shared_ptr< Robot > robot = robots[j];
 
-			if(((count - 1) % configuration->getActuationPeriod()) == 0) {
-				// Feed neural network
-				for (unsigned int i = 0; i < sensors.size(); ++i) {
+				// Register brain and body parts
+				const boost::shared_ptr<NeuralNetwork>& neuralNetwork =
+						robot->getBrain();
 
-					if (boost::dynamic_pointer_cast<TouchSensor>(
-							sensors[i])) {
-						networkInput[i] =
-								boost::dynamic_pointer_cast<
-										TouchSensor>(sensors[i])->read();
-					} else if (boost::dynamic_pointer_cast<
-							LightSensor>(sensors[i])) {
-						networkInput[i] =
-								boost::dynamic_pointer_cast<
-										LightSensor>(sensors[i])->read(
-										env->getLightSources(),
-										env->getAmbientLight());
-					} else if (boost::dynamic_pointer_cast<
-							SimpleSensor>(sensors[i])) {
-						networkInput[i] =
-								boost::dynamic_pointer_cast<
-										SimpleSensor>(sensors[i])->read();
+				const std::vector<boost::shared_ptr<Model> >& bodyParts =
+						robot->getBodyParts();
+
+				// Register sensors
+				const std::vector<boost::shared_ptr<Sensor> >& sensors =
+						robot->getSensors();
+
+				// Register robot motors
+				const std::vector<boost::shared_ptr<Motor> >& motors =
+						robot->getMotors();
+
+				float networkInput[MAX_INPUT_NEURONS];
+				float networkOutputs[MAX_OUTPUT_NEURONS];
+
+				// Update Sensors
+				for (unsigned int i = 0; i < bodyParts.size();
+						++i) {
+					if (boost::dynamic_pointer_cast<
+							PerceptiveComponent>(bodyParts[i])) {
+						boost::dynamic_pointer_cast<
+								PerceptiveComponent>(bodyParts[i])->updateSensors(
+								env);
 					}
-					// Add sensor noise: Gaussian with std dev of
-					// sensorNoiseLevel * actualValue
-					networkInput[i] += (normalDistribution(rng) *
-							configuration->getSensorNoiseLevel() *
-							networkInput[i]);
-				}
-				if (log) {
-					log->logSensors(networkInput, sensors.size());
 				}
 
+				if(((count - 1) % configuration->getActuationPeriod()) == 0) {
+					// Feed neural network
+					for (unsigned int i = 0; i < sensors.size(); ++i) {
 
-				::feed(neuralNetwork.get(), &networkInput[0]);
-
-				// Step the neural network
-				::step(neuralNetwork.get(), t);
-
-				// Fetch the neural network ouputs
-				::fetch(neuralNetwork.get(), &networkOutputs[0]);
-
-				// Send control to motors
-				for (unsigned int i = 0; i < motors.size(); ++i) {
-					if (boost::dynamic_pointer_cast<ServoMotor>(
-							motors[i])) {
-
-						// Add motor noise:
-						// uniform in range +/- motorNoiseLevel * actualValue
-						networkOutputs[i] += (
-										((uniformDistribution(rng) *
-										2.0 *
-										configuration->getMotorNoiseLevel())
-										- configuration->getMotorNoiseLevel())
-										* networkOutputs[i]);
-
-
-						boost::shared_ptr<ServoMotor> motor =
-								boost::dynamic_pointer_cast<
-										ServoMotor>(motors[i]);
-
-						if (motor->isVelocityDriven()) {
-							motor->setVelocity(networkOutputs[i], step *
-									configuration->getActuationPeriod());
-						} else {
-							motor->setPosition(networkOutputs[i], step *
-									configuration->getActuationPeriod());
+						if (boost::dynamic_pointer_cast<TouchSensor>(
+								sensors[i])) {
+							networkInput[i] =
+									boost::dynamic_pointer_cast<
+											TouchSensor>(sensors[i])->read();
+						} else if (boost::dynamic_pointer_cast<
+								LightSensor>(sensors[i])) {
+							networkInput[i] =
+									boost::dynamic_pointer_cast<
+											LightSensor>(sensors[i])->read(
+											env->getLightSources(),
+											env->getAmbientLight());
+						} else if (boost::dynamic_pointer_cast<
+								SimpleSensor>(sensors[i])) {
+							networkInput[i] =
+									boost::dynamic_pointer_cast<
+											SimpleSensor>(sensors[i])->read();
 						}
-
-						// TODO find a cleaner way to do this
-						// for now will reuse accel cap infrastructure
-						if (motor->isBurntOut()) {
-							std::cout << "Motor burnt out, will return 0 "
-									<< "fitness" << std::endl;
-							accelerationCapExceeded = true;
-						}
-
+						// Add sensor noise: Gaussian with std dev of
+						// sensorNoiseLevel * actualValue
+						networkInput[i] += (normalDistribution(rng) *
+								configuration->getSensorNoiseLevel() *
+								networkInput[i]);
 					}
+					if (log) {
+						log->logSensors(networkInput, sensors.size());
+					}
+
+
+					::feed(neuralNetwork.get(), &networkInput[0]);
+
+					// Step the neural network
+					::step(neuralNetwork.get(), t);
+
+					// Fetch the neural network ouputs
+					::fetch(neuralNetwork.get(), &networkOutputs[0]);
+
+					// Send control to motors
+					for (unsigned int i = 0; i < motors.size(); ++i) {
+						if (boost::dynamic_pointer_cast<ServoMotor>(
+								motors[i])) {
+
+							// Add motor noise:
+							// uniform in range +/- motorNoiseLevel * actualValue
+							networkOutputs[i] += (
+											((uniformDistribution(rng) *
+											2.0 *
+											configuration->getMotorNoiseLevel())
+											- configuration->getMotorNoiseLevel())
+											* networkOutputs[i]);
+
+
+							boost::shared_ptr<ServoMotor> motor =
+									boost::dynamic_pointer_cast<
+											ServoMotor>(motors[i]);
+
+							if (motor->isVelocityDriven()) {
+								motor->setVelocity(networkOutputs[i], step *
+										configuration->getActuationPeriod());
+							} else {
+								motor->setPosition(networkOutputs[i], step *
+										configuration->getActuationPeriod());
+							}
+
+							// TODO find a cleaner way to do this
+							// for now will reuse accel cap infrastructure
+							if (motor->isBurntOut()) {
+								std::cout << "Motor burnt out, will return 0 "
+										<< "fitness" << std::endl;
+								accelerationCapExceeded = true;
+							}
+
+						}
+					}
+
+					if(log) {
+						log->logMotors(networkOutputs, motors.size());
+					}
+				}
+
+				if(accelerationCapExceeded) {
+					break;
+				}
+
+				if (!scenario->afterSimulationStep()) {
+					std::cout
+							<< "Cannot execute scenario after simulation step. Quit."
+							<< std::endl;
+					return SIMULATION_FAILURE;
 				}
 
 				if(log) {
-					log->logMotors(networkOutputs, motors.size());
+					log->logPosition(robot->getCoreComponent()->getRootPosition());
 				}
-			}
-
-			if(accelerationCapExceeded) {
-				break;
-			}
-
-			if (!scenario->afterSimulationStep()) {
-				std::cout
-						<< "Cannot execute scenario after simulation step. Quit."
-						<< std::endl;
-				return SIMULATION_FAILURE;
-			}
-
-			if(log) {
-				log->logPosition(robot->getCoreComponent()->getRootPosition());
 			}
 
 			t += step;
@@ -359,8 +371,7 @@ unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
 		// Simulator finalization
 		// ---------------------------------------
 
-		// Destroy robot (because of associated ODE joint group)
-		robot.reset();
+		// Destroy robots (because of associated ODE joint group)
 		robots.clear();
 
 		// has shared pointer in scenario, so destroy that too

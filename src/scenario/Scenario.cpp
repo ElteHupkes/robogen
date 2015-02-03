@@ -95,8 +95,8 @@ bool Scenario::init(dWorldID odeWorld, dSpaceID odeSpace,
 		double y = radius * sin(angle);
 		osg::Vec2 startingPosition(x, y);
 
-		std::cout << "angle: " << angle << std::endl;
-		std::cout << "i: " << i << ", x: " << x << " y: " << y << std::endl;
+//		std::cout << "angle: " << angle << std::endl;
+//		std::cout << "i: " << i << ", x: " << x << " y: " << y << std::endl;
 
 		float startingAzimuth = M_PI - angle;
 		osg::Quat roboRot;

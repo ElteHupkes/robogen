@@ -191,6 +191,13 @@ public:
 	}
 
 	/**
+	 * Set the number of bots to be setup in the next scenario
+	 */
+	void setNBots(unsigned int n) {
+		nBots_ = n;
+	}
+
+	/**
 	 * Convert configuration into configuration message.
 	 */
 	robogenMessage::SimulatorConf serialize() const{

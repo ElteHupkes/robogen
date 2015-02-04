@@ -150,56 +150,55 @@ int main(int argc, char* argv[]) {
 						return exitRobogen(EXIT_FAILURE);
 					}
 
-					// ---------------------------------------
-					// Setup environment
-					// ---------------------------------------
+					for (unsigned int i = 0; i < 5; ++i) {
+						// ---------------------------------------
+						// Setup environment
+						// ---------------------------------------
+						unsigned int nBots = 15 * (i + 1);
+						configuration->setNBots(nBots);
 
-					boost::shared_ptr<Scenario> scenario =
-							ScenarioFactory::createScenario(configuration);
-					if (scenario == NULL) {
-						return exitRobogen(EXIT_FAILURE);
+						boost::shared_ptr<Scenario> scenario =
+								ScenarioFactory::createScenario(configuration);
+						if (scenario == NULL) {
+							return exitRobogen(EXIT_FAILURE);
+						}
+
+						std::cout
+								<< "-----------------------------------------------"
+								<< std::endl;
+
+						// ---------------------------------------
+						// Run simulations
+						// ---------------------------------------
+						Viewer *viewer = NULL;
+						if(visualize) {
+							viewer = new Viewer(startPaused);
+						}
+
+						std::cout << "Simulating " << nBots << " bots..." << std::endl;
+						double start = omp_get_wtime();
+						unsigned int simulationResult = runSimulations(scenario,
+								configuration, packet.getMessage()->robot(),
+								viewer, rng);
+
+						double end = omp_get_wtime();
+						std::cout << "Bots: " << nBots << ", Time: " << (end - start) << " seconds" << std::endl;
+
+						if(viewer != NULL) {
+							delete viewer;
+						}
+
+
+						if (simulationResult == SIMULATION_FAILURE) {
+							return exitRobogen(EXIT_FAILURE);
+						}
 					}
 
-					std::cout
-							<< "-----------------------------------------------"
-							<< std::endl;
-
-					// ---------------------------------------
-					// Run simulations
-					// ---------------------------------------
-					Viewer *viewer = NULL;
-					if(visualize) {
-						viewer = new Viewer(startPaused);
-					}
-
-					double start = omp_get_wtime();
-					unsigned int simulationResult = runSimulations(scenario,
-							configuration, packet.getMessage()->robot(),
-							viewer, rng);
-
-					double end = omp_get_wtime();
-					std::cout << std::endl << "Simulation took " << (end - start) << " seconds" << std::endl;
-
-					if(viewer != NULL) {
-						delete viewer;
-					}
-
-
-					if (simulationResult == SIMULATION_FAILURE) {
-						return exitRobogen(EXIT_FAILURE);
-					}
-
+					// Part below may be ignored for stress test
 					// ---------------------------------------
 					// Compute fitness
 					// ---------------------------------------
-					double fitness;
-					if (simulationResult == ACCELERATION_CAP_EXCEEDED) {
-						fitness = MIN_FITNESS;
-					} else {
-						fitness = scenario->getFitness();
-					}
-//					std::cout << "Fitness for the current solution: " << fitness
-//							<< std::endl << std::endl;
+					double fitness = 0;
 
 					// ---------------------------------------
 					// Send reply to EA

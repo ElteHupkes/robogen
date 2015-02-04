@@ -198,8 +198,8 @@ int main(int argc, char* argv[]) {
 					} else {
 						fitness = scenario->getFitness();
 					}
-					std::cout << "Fitness for the current solution: " << fitness
-							<< std::endl << std::endl;
+//					std::cout << "Fitness for the current solution: " << fitness
+//							<< std::endl << std::endl;
 
 					// ---------------------------------------
 					// Send reply to EA

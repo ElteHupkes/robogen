@@ -1,5 +1,5 @@
 simulatorConfFile=conf.txt
-referenceRobotFile=stressRobot.txt
+referenceRobotFile=robot.txt
 mu=1
 lambda=100
 selection=deterministic-tournament

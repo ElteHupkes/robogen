@@ -27,6 +27,7 @@
  * @(#) $Id$
  */
 #include <iostream>
+#include <omp.h>
 
 #include "config/ConfigurationReader.h"
 #include "config/RobogenConfig.h"
@@ -171,9 +172,13 @@ int main(int argc, char* argv[]) {
 						viewer = new Viewer(startPaused);
 					}
 
+					double start = omp_get_wtime();
 					unsigned int simulationResult = runSimulations(scenario,
 							configuration, packet.getMessage()->robot(),
 							viewer, rng);
+
+					double end = omp_get_wtime();
+					std::cout << std::endl << "Simulation took " << (end - start) << " seconds" << std::endl;
 
 					if(viewer != NULL) {
 						delete viewer;

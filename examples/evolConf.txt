@@ -1,10 +1,10 @@
 simulatorConfFile=conf.txt
 referenceRobotFile=simpleRobot.txt
-mu=2
+mu=1
 lambda=100
 selection=deterministic-tournament
 replacement=plus
-tournamentSize=2
+tournamentSize=1
 numGenerations=100
 evolutionMode=brain
 pBrainMutate=.3

@@ -98,7 +98,7 @@ bool Scenario::init(dWorldID odeWorld, dSpaceID odeSpace,
 //		std::cout << "angle: " << angle << std::endl;
 //		std::cout << "i: " << i << ", x: " << x << " y: " << y << std::endl;
 
-		float startingAzimuth = M_PI - angle;
+		float startingAzimuth = M_PI + angle;
 		osg::Quat roboRot;
 		roboRot.makeRotate(startingAzimuth, osg::Vec3(0,0,1));
 

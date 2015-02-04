@@ -18,8 +18,9 @@ if (UNIX)
 if ("${CMAKE_SYSTEM}" MATCHES "Linux")
 
     # ODE
-	set (ODE_INCLUDE_PATH "/usr/local/include")
-	set (ODE_LIBRARIES "/usr/local/lib/libode.a")
+	set (ODE_PATH_BASE "/home/elte/Documents/Studie/MasterThesis/robogen/ode-0.12/install-dir")
+	set (ODE_INCLUDE_PATH "${ODE_PATH_BASE}/include")
+	set (ODE_LIBRARIES "${ODE_PATH_BASE}/lib/libode.a")
 
 endif ()
 endif (UNIX)

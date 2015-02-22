@@ -2,7 +2,7 @@
 cmake_minimum_required (VERSION 2.8)
 
 # Project Name
-project (RoboGen)
+project (RoboGenToL)
 
 # Add customized CMAKE modules
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")

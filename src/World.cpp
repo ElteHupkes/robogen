@@ -70,6 +70,17 @@ int main(int argc, char *argv[]) {
 	//   should be connected, which are defined by a position and an axis. It
 	//   rotates and translates A such that its slot axis aligns with that of
 	//   B.
+	// - This function also creates the joints.
+	// - Alright, so after the robot body parts have been connected, their positions
+	//   and rotations are all accurate. I should probably hook into this process so
+	//   that instead of sending the positions to ODE, it stores the positions somewhere
+	//   so that I can extract them, and create the SDF from it.
+	// - I can use gazebo::math::Pose to convert the created quaternions to
+	//   roll/pitch/yaw as is used in SDF.
+	//   Q: Gazebo uses C++11; can I even use those headers?
+
+	// Ok, starting now, I'm creating an additional Model class
+	// (namespaced robogen::gazebo) that does not depend on ODE whatsoever.
 
 
 	return exitRobogen(EXIT_SUCCESS);

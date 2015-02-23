@@ -40,7 +40,33 @@ namespace gazebo {
 
 /**
  * Gazebo model class, derives SDF models from the functionality
- * that is currently used to put the models in the ODE world.
+ * that is currently used to place the models in the ODE world.
+ * Please note that I'm taking the Model terminology from Robogen,
+ * a Robogen model will *NOT* map to an SDF Model (rather an SDF
+ * model will be a collection of Robogen models).
+ *
+ * I'll initially approach this as follows. Each Model defines several things:
+ * - A set of links, with a geometry, inertia, position and
+ *   orientation within the model they specify. I'll later add "visual
+ *   representation" to this list.
+ * - A set of joints, also with a pose / type / orientation and possibly
+ *   other properties. These joints will also specify which of the links
+ *   within the model they connect. I can use the handy property that there
+ *   are only moving joints *within* the objects; the rest of the joints
+ *   are actually fixed. So I'll never have to specify a joint to a body
+ *   part in another "model".
+ *
+ * Fixed joints to attach models to one another will be automatically added
+ * by the Robot builder.
+ *
+ * Ideally I'd reduce the number of links in the model by combining
+ * fixed collision objects. The problem here is the inertia tensor, which
+ * would then have to be applied to the combined objects.
+ * I might be able to do this for fixed connections
+ * within models, since I have the specifics there and could probably
+ * calculate the inertia tensor with MeshLab, for instance. To do it for
+ * larger chunks I'd need inertia tensors for every perceivable combination,
+ * which I reckon is rather undoable.
  */
 class Model {
 

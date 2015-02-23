@@ -56,6 +56,9 @@ ActiveHingeModel::~ActiveHingeModel() {
 }
 
 bool ActiveHingeModel::initModel() {
+	// The ActiveHinge consists of four collision objects,
+	// split over two links which are connected with a
+	// servo-powered joint.
 
 	// Create the 4 components of the hinge
 	hingeRoot_ = this->createBody(B_SLOT_A_ID);

@@ -9,29 +9,24 @@
 #include <vector>
 
 // SDF builder libraries
-#include "sdf/Pose.h"
+#include "sdf/Posable.h"
+#include "sdf/PosableParent.h"
 
 namespace sdf_builder {
 
 /**
  * An SDF model
  */
-class Model : public Element  {
-	// Needs:
-	// - Position
-	// - List of links
-	// - static flag
+class Model : public Posable, public PosableParent  {
 public:
-	/**
-	 * Pose of the model
-	 */
-	Pose pose_;
+	Model(const std::string name);
+	virtual ~Model();
 
 	/**
-	 *
+	 * Return XML representation
 	 */
-	std::string name_;
-
+	std::string toXML();
+protected:
 	/**
 	 * Whether or not this model has the static
 	 * property in the world.

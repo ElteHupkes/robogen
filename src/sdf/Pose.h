@@ -4,6 +4,9 @@
 #ifndef SDF_POSE_H_
 #define SDF_POSE_H_
 
+#include "sdf/SdfBuilder.h"
+#include "sdf/Element.h"
+
 namespace sdf_builder {
 
 /**
@@ -11,18 +14,39 @@ namespace sdf_builder {
  */
 class Pose : public Element  {
 public:
-	double x() { return x_; }
-	double y() { return y_; }
-	double z() { return z_; }
-	double roll() { return roll_; }
-	double pitch() { return pitch_; }
-	double yaw() { return yaw_; }
+	Pose();
+	~Pose();
 
 	/**
-	 * Sets the roll, pitch and yaw based on the given
-	 * quaternion values.
+	 * Return the current position
 	 */
-	void setFromQuaternion(double w, double x, double y, double z);
+	const Vector3 position();
+
+	/**
+	 * Return the current rotation
+	 */
+	const Quaternion rotation();
+
+	/**
+	 * Sets x / y / z
+	 */
+	void setPosition(Vector3 pos);
+
+	/**
+	 * Set rotation using a quaternion
+	 */
+	void setRotation(Quaternion rot);
+
+	/**
+	 * Set rotation using roll / pitch / yaw
+	 */
+	//void setRotation(double roll, double pitch, double yaw);
+
+	/**
+	 * Converts the current quaternion rotation to
+	 * roll / pitch / yaw angles.
+	 */
+	Vector3 rotationToEuler();
 
 	/**
 	 * Converts to XML
@@ -30,13 +54,16 @@ public:
 	std::string toXML();
 
 protected:
-	double x_ = 0;
-	double y_ = 0;
-	double z_ = 0;
+	/**
+	 * Position vector
+	 */
+	Vector3 pos_;
 
-	double roll_ = 0;
-	double pitch_ = 0;
-	double yaw_ = 0;
+	/**
+	 * Rotation quaternion, easier to work
+	 * with when doing actual rotations.
+	 */
+	Quaternion rot_;
 };
 
 } /* namespace sdf_builder */

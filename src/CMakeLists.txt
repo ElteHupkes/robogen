@@ -90,6 +90,12 @@ file (GLOB_RECURSE
      Simulator.cpp
 )
 
+# All files for the SDF builder
+file(GLOB_RECURSE
+	 SDFBUILDER_SRC
+	 sdf/*.cpp
+ )
+
 
 find_package(Boost COMPONENTS chrono date_time graph system program_options regex filesystem timer thread serialization)
 find_package(Protobuf REQUIRED)
@@ -129,8 +135,6 @@ target_link_libraries(robogen-server robogen ${ROBOGEN_DEPENDENCIES})
 add_executable(robogen-file-viewer viewer/FileViewer.cpp)
 target_link_libraries(robogen-file-viewer robogen ${ROBOGEN_DEPENDENCIES})
 
-
-
 # Tests
 #add_executable(robogen-server-viewer-test viewer/ServerViewerTest.cpp)
 #target_link_libraries(robogen-server-viewer-test robogen ${ROBOGEN_DEPENDENCIES})
@@ -138,3 +142,7 @@ target_link_libraries(robogen-file-viewer robogen ${ROBOGEN_DEPENDENCIES})
 #add_executable(robogen-test test.cpp)
 #target_link_libraries(robogen-test robogen ${ROBOGEN_DEPENDENCIES})
 
+# SDF Builder stuff
+add_library(sdfbuilder ${SDFBUILDER_SRC} )
+add_executable(sdf-test World.cpp)
+target_link_libraries(sdf-test robogen sdfbuilder ${ROBOGEN_DEPENDENCIES})

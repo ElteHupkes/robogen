@@ -14,8 +14,7 @@ namespace sdf_builder {
 
 class Geometry: public Element {
 public:
-	Geometry(double mass = 0) :
-		mass_(mass) {};
+	explicit Geometry(double mass = 0);
 
 	virtual ~Geometry();
 

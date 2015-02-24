@@ -10,6 +10,11 @@
 // Robogen libraries
 #include "evolution/representation/RobotRepresentation.h"
 
+// For testing
+#include "sdf/Model.h"
+#include "sdf/Link.h"
+
+
 using namespace robogen;
 
 // Exit function
@@ -18,22 +23,29 @@ int exitRobogen(int exitCode) {
 	return exitCode;
 }
 
-int main(int argc, char *argv[]) {
-	if (argc != 2) {
-		std::cout << "Call with robot reference file only for now." << std::endl;
-		return exitRobogen(EXIT_FAILURE);
-	}
+int main() {
+	boost::shared_ptr < sdf_builder::Model > model(new sdf_builder::Model("my_model") );
+	boost::shared_ptr < sdf_builder::Link > link( new sdf_builder::Link("my_link") );
 
-	// Load the reference robot into a RobotRepresentation
-	std::string referenceRobotFile(argv[1]);
-	boost::shared_ptr<RobotRepresentation> referenceBot(
-				new RobotRepresentation());
+	model->addPosable(link);
 
-	if (!referenceBot->init(referenceRobotFile)) {
-		std::cout << "Failed interpreting robot from text file"
-				<< std::endl;
-		return exitRobogen(EXIT_FAILURE);
-	}
+	std::cout << model->toXML() << std::endl;
+
+//	if (argc != 2) {
+//		std::cout << "Call with robot reference file only for now." << std::endl;
+//		return exitRobogen(EXIT_FAILURE);
+//	}
+//
+//	// Load the reference robot into a RobotRepresentation
+//	std::string referenceRobotFile(argv[1]);
+//	boost::shared_ptr<RobotRepresentation> referenceBot(
+//				new RobotRepresentation());
+//
+//	if (!referenceBot->init(referenceRobotFile)) {
+//		std::cout << "Failed interpreting robot from text file"
+//				<< std::endl;
+//		return exitRobogen(EXIT_FAILURE);
+//	}
 
 	// Here, I want something like
 	// referenceBot->getRobot()

@@ -9,13 +9,11 @@
 
 namespace sdf_builder {
 
-Geometry::Geometry() {
-	// TODO Auto-generated constructor stub
+Geometry::Geometry(double mass):
+	mass_(mass)
+{}
 
-}
-
-Geometry::~Geometry() {
-	// TODO Auto-generated destructor stub
-}
+Geometry::~Geometry()
+{}
 
 } /* namespace sdf_builder */

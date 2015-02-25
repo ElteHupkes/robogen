@@ -17,7 +17,7 @@ namespace sdf_builder {
  */
 class Link : public Posable, public PosableParent  {
 public:
-	Link(std::string name);
+	explicit Link(std::string name);
 	virtual ~Link();
 
 	/**
@@ -42,6 +42,12 @@ public:
 	 */
 	void makeBox(double mass, double x, double y, double z,
 			bool collision = true, bool visual = true);
+
+	/**
+	 * Whether or not the link can collide with other
+	 * links in the model (defaults to true here!)
+	 */
+	bool selfCollide;
 
 protected:
 	/**

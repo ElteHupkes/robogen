@@ -19,7 +19,12 @@ public:
 	/**
 	 * Initializes a joint without links
 	 */
-	Joint(std::string name),
+	explicit Joint(std::string name),
+
+	/**
+	 * Initializes a joint, composing name from parent and child
+	 */
+	Joint(LinkPtr parent, LinkPtr child);
 
 	/**
 	 * Initializes a joint with parent / child links

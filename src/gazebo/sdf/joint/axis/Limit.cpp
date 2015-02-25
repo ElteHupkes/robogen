@@ -47,7 +47,7 @@ std::string Limit::toXML() {
 
 	out << "<effort>" << nf(effort) << "</effort>";
 	out << "<velocity>" << nf(velocity) << "</velocity>";
-	out << "dissipation>" << nf(dissipation) << "</dissipation>";
+	out << "<dissipation>" << nf(dissipation) << "</dissipation>";
 	out << "</limit>" << '\n';
 
 	return out.str();

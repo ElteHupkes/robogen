@@ -14,7 +14,7 @@ namespace sdf_builder {
 
 class Visual: public Shape {
 public:
-	Visual(std::string name);
+	explicit Visual(std::string name);
 	Visual(std::string name, GeometryPtr geom);
 	virtual ~Visual();
 

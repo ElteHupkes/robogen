@@ -14,8 +14,9 @@ namespace sdf_builder {
 
 class RevoluteJoint: public Joint {
 public:
-	RevoluteJoint(std::string name);
+	explicit RevoluteJoint(std::string name);
 	RevoluteJoint(std::string name, LinkPtr parent, LinkPtr child);
+	RevoluteJoint(LinkPtr parent, LinkPtr child);
 	virtual ~RevoluteJoint();
 
 	/**

@@ -13,7 +13,11 @@ RevoluteJoint::RevoluteJoint(std::string name):
 	Joint(name)
 {}
 
-Joint::Joint(std::string name, LinkPtr parent, LinkPtr child):
+RevoluteJoint::RevoluteJoint(LinkPtr parent, LinkPtr child):
+	Joint(parent, child)
+{}
+
+RevoluteJoint::RevoluteJoint(std::string name, LinkPtr parent, LinkPtr child):
 	Joint(name, parent, child)
 {}
 

@@ -122,6 +122,9 @@ LinkPtr Model::createLink(int label) {
 	if (label >= 0) {
 		this->addLink(b, label);
 	}
+
+	// Add the model to the posables anyway
+	posables_.push_back(b);
 	return b;
 }
 
@@ -129,19 +132,27 @@ LinkPtr Model::createLink() {
 	return this->createLink(-1);
 }
 
-//PosablePtr Model::createBoxGeom(LinkPtr link, float mass,
-//		float lengthX, float lengthY, float lengthZ) {
-//	dMass massOde;
-//	dMassSetBoxTotal(&massOde, mass, lengthX, lengthY, lengthZ);
-//	dBodySetMass(body, &massOde);
-//	dxGeom* g = dCreateBox(this->getCollisionSpace(), lengthX, lengthY,
-//			lengthZ);
-//	dBodySetPosition(body, pos.x(), pos.y(), pos.z());
-//	dGeomSetPosition(g, pos.x(), pos.y(), pos.z());
-//	dGeomSetBody(g, body);
-//	return g;
-//
-//}
+const std::vector< JointPtr > & Model::getJoints() {
+	return joints_;
+}
+
+const std::vector< PosablePtr > & Model::getPosables() {
+	return posables_;
+}
+
+void Model::addJoint(JointPtr joint) {
+	joints_.push_back(joint);
+	posables_.push_back(joint);
+}
+
+JointPtr Model::fixLinks(LinkPtr parent, LinkPtr child,
+		const Vector3& axis, const Vector3& anchor) {
+	JointPtr joint(new FixedJoint(parent, child));
+	joint->setPosition(anchor);
+	joint->axis->xyz(axis);
+	this->addJoint(joint);
+	return joint;
+}
 
 //dxGeom* Model::createCylinderGeom(dBodyID body, float mass,
 //		const osg::Vec3& pos, int direction, float radius, float height) {

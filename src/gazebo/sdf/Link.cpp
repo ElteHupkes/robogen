@@ -14,6 +14,7 @@ namespace sdf_builder {
 
 Link::Link(std::string nm) :
 	Posable(nm),
+	selfCollide(true),
 	inertial_(InertialPtr(new Inertial))
 {}
 
@@ -57,6 +58,10 @@ std::string Link::toXML() {
 	for (int i = 0, l = posables_.size(); i < l; ++i) {
 		out << posables_[i]->toXML() << '\n';
 	}
+
+	out << "<self_collide>"
+		<< (selfCollide ? "1" : "0")
+		<< "</self_collide>";
 
 	out << "</link>" << '\n';
 	return out.str();

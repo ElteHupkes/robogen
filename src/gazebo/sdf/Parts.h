@@ -17,5 +17,8 @@
 #include <gazebo/sdf/Pose.h>
 #include <gazebo/sdf/geometry/Box.h>
 #include <gazebo/sdf/shape/Collision.h>
+#include <gazebo/sdf/shape/Visual.h>
+#include <gazebo/sdf/joint/RevoluteJoint.h>
+#include <gazebo/sdf/joint/FixedJoint.h>
 
 #endif

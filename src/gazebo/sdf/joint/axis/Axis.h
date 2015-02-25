@@ -11,6 +11,7 @@
 #include <vector>
 
 #include <gazebo/sdf/Element.h>
+#include <gazebo/sdf/joint/axis/Limit.h>
 
 namespace sdf_builder {
 

@@ -26,6 +26,7 @@ class Visual;
 class Element;
 class Axis;
 class Limit;
+class Joint;
 
 // Typedefs
 typedef osg::Vec3d Vector3;
@@ -42,7 +43,8 @@ typedef boost::shared_ptr< Collision > CollisionPtr;
 typedef boost::shared_ptr< Visual > VisualPtr;
 typedef boost::shared_ptr< Element > ElementPtr;
 typedef boost::shared_ptr< Axis > AxisPtr;
-typedef boost::shared_ptr< Axis > LimitPtr;
+typedef boost::shared_ptr< Limit > LimitPtr;
+typedef boost::shared_ptr< Joint > JointPtr;
 
 }
 

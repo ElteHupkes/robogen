@@ -36,7 +36,7 @@ std::string Axis::toXML() {
 			<< nf(xyz_.z()) << ' '
 			<< "</xyz>"
 		<< "<use_parent_model_frame>"
-		<< (useParentModelFrame ? "true" : "false")
+		<< (useParentModelFrame ? "1" : "0")
 		<< "</use_parent_model_frame>";
 
 	std::vector< ElementPtr >::iterator it = elements_.begin();

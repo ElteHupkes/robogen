@@ -23,7 +23,7 @@ public:
 	 * Default constructor initializes the shape with
 	 * a unit size box.
 	 */
-	Shape(std::string name);
+	explicit Shape(std::string name);
 	Shape(std::string name, GeometryPtr geom);
 	virtual ~Shape();
 

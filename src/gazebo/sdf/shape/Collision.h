@@ -14,7 +14,7 @@ namespace sdf_builder {
 
 class Collision: public Shape {
 public:
-	Collision(std::string name);
+	explicit Collision(std::string name);
 	Collision(std::string name, GeometryPtr geom);
 	virtual ~Collision();
 

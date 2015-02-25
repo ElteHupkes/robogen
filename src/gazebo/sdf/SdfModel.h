@@ -19,7 +19,7 @@ namespace sdf_builder {
  */
 class SdfModel : public Posable, public PosableParent  {
 public:
-	SdfModel(std::string name);
+	explicit SdfModel(std::string name);
 	virtual ~SdfModel();
 
 	/**

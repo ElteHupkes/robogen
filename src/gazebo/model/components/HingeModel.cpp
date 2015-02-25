@@ -33,7 +33,7 @@ const float HingeModel::MASS_SLOT = inGrams(2);
 const float HingeModel::MASS_FRAME = inGrams(1);
 const float HingeModel::SLOT_WIDTH = inMm(34);
 const float HingeModel::SLOT_THICKNESS = inMm(1.5);
-const float HingeModel::CONNNECTION_PART_LENGTH = inMm(20.5);
+const float HingeModel::CONNECTION_PART_LENGTH = inMm(20.5);
 const float HingeModel::CONNECTION_PART_HEIGHT = inMm(20);
 const float HingeModel::CONNECTION_PART_THICKNESS = inMm(2);
 
@@ -53,6 +53,7 @@ HingeModel::~HingeModel() {
 bool HingeModel::initModel() {
 
 	// Create the 4 components of the hinge
+	// TODO Should these bodies self-collide? They do by default now.
 	hingeRoot_ = this->createLink(B_SLOT_A_ID);
 	LinkPtr connectionPartA = this->createLink(B_CONNECTION_A_ID);
 	LinkPtr connectionPartB = this->createLink(B_CONNECTION_B_ID);
@@ -66,43 +67,46 @@ bool HingeModel::initModel() {
 
 	// Connection part A needs to be positioned
 	double xPartA = SLOT_THICKNESS / 2 + separation
-			+ CONNNECTION_PART_LENGTH / 2;
+			+ CONNECTION_PART_LENGTH / 2;
 	connectionPartA->setPosition(Vector3(xPartA, 0, 0));
-	connectionPartA->makeBox(MASS_FRAME, CONNNECTION_PART_LENGTH,
+	connectionPartA->makeBox(MASS_FRAME, CONNECTION_PART_LENGTH,
 			CONNECTION_PART_THICKNESS, CONNECTION_PART_HEIGHT);
 
 	// Part b also must be positioned
 	double xPartB = xPartA
-			+ (CONNNECTION_PART_LENGTH / 2
-					- (CONNNECTION_PART_LENGTH - CONNECTION_ROTATION_OFFSET))
+			+ (CONNECTION_PART_LENGTH / 2
+					- (CONNECTION_PART_LENGTH - CONNECTION_ROTATION_OFFSET))
 					* 2;
 	connectionPartB->setPosition(Vector3(xPartB, 0, 0));
-	connectionPartB->makeBox(MASS_FRAME, CONNNECTION_PART_LENGTH, CONNECTION_PART_THICKNESS,
+	connectionPartB->makeBox(MASS_FRAME, CONNECTION_PART_LENGTH, CONNECTION_PART_THICKNESS,
 			CONNECTION_PART_HEIGHT);
 
 	// Finally the tail, also with a position
-	double xTail = xPartB + CONNNECTION_PART_LENGTH / 2 + separation
+	double xTail = xPartB + CONNECTION_PART_LENGTH / 2 + separation
 			+ SLOT_THICKNESS / 2;
 	hingeTail_->setPosition(Vector3(xTail, 0, 0));
 	hingeTail_->makeBox(MASS_SLOT, SLOT_THICKNESS, SLOT_WIDTH, SLOT_WIDTH);
 
 	// Create joints to hold pieces in position
-
 	// root <-> connectionPartA
-//	this->fixBodies(hingeRoot_, connectionPartA, osg::Vec3(1, 0, 0));
-//
-//	// connectionPartA <(hinge)> connectionPArtB
-//	dJointID joint = dJointCreateHinge(this->getPhysicsWorld(), 0);
-//	dJointAttach(joint, connectionPartA, connectionPartB);
-//	dJointSetHingeAxis(joint, 0, 0, 1);
-//	dJointSetHingeAnchor(joint,
-//			xPartA
-//					+ (CONNNECTION_PART_LENGTH / 2
-//							- (CONNNECTION_PART_LENGTH
-//									- CONNECTION_ROTATION_OFFSET)), 0, 0);
-//
-//	// connectionPartB <-> tail
-//	this->fixBodies(connectionPartB, hingeTail_, osg::Vec3(1, 0, 0));
+	this->fixLinks(hingeRoot_, connectionPartA,
+			Vector3(1, 0, 0), Vector3(-CONNECTION_PART_LENGTH / 2, 0, 0));
+
+	// connectionPartA <(hinge)> connectionPArtB
+	// Hinge joint axis should point straight up, and anchor the
+	// points in the center. Note that the position of a joint is
+	// expressed in the child link frame, so we need to take the
+	// position from the original code and subtract connectionPartB's
+	// position.
+	JointPtr revolve(new RevoluteJoint(connectionPartA, connectionPartB));
+	revolve->axis->xyz(Vector3(0, 0, 1));
+	revolve->setPosition(Vector3(
+			CONNECTION_PART_LENGTH / 2 - CONNECTION_ROTATION_OFFSET, 0, 0));
+	this->addJoint(revolve);
+
+	// connectionPartB <-> tail
+	this->fixLinks(connectionPartB, hingeTail_,
+			Vector3(1, 0, 0), Vector3(-SLOT_THICKNESS / 2, 0, 0));
 
 	return true;
 

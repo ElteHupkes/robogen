@@ -20,7 +20,7 @@ public:
 
 	static const float SLOT_WIDTH;
 	static const float SLOT_THICKNESS;
-	static const float CONNNECTION_PART_LENGTH;
+	static const float CONNECTION_PART_LENGTH;
 	static const float CONNECTION_PART_HEIGHT;
 	static const float CONNECTION_PART_THICKNESS;
 	static const float CONNECTION_ROTATION_OFFSET;

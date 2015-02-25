@@ -16,7 +16,7 @@ namespace sdf_builder {
  */
 class Posable : public Element {
 public:
-	Posable(std::string name);
+	explicit Posable(std::string name);
 	virtual ~Posable();
 
 	/**

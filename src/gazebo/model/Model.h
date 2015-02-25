@@ -33,8 +33,11 @@
 #include <stdexcept>
 
 // Utility defines taken from Robogen.h
-#define inMm(x) (x/1000.0)
-#define inGrams(x) (x/1000.0)
+// For stability's sake I'm increasing everything by a factor 10
+//#define inMm(x) (x/1000.0)
+//#define inGrams(x) (x/1000.0)
+#define inMm(x) (x/100.0)
+#define inGrams(x) (x/100.0)
 
 // sdfbuilder
 #include <gazebo/sdf/Types.h>
@@ -188,6 +191,36 @@ public:
 	LinkPtr createLink();
 
 	/**
+	 * Convenience method to create a joint to fix two links together.
+	 * The joint is added to the joint list.
+	 *
+	 * @param Parent link
+	 * @param Child link
+	 * @param Axis of the joint
+	 * @param Anchor of the joint; since the joint's position is
+	 * 		  expressed in the child frame I need to know the anchor point.
+	 * @return The joint created to connect the links
+	 */
+	JointPtr fixLinks(LinkPtr parent, LinkPtr child,
+			const Vector3& axis, const Vector3& anchor);
+
+	/**
+	 * @return A list of all joints in this model
+	 */
+	const std::vector< JointPtr > & getJoints();
+
+	/**
+	 * @return A list of all posables in this model
+	 */
+	const std::vector< PosablePtr > & getPosables();
+
+	/**
+	 * Adds a joint to this model.
+	 * @param Joint to add to the joint list
+	 */
+	void addJoint(JointPtr joint);
+
+	/**
 	 * Create a capsule geometry for the body
 	 * @param body
 	 * @param mass
@@ -242,8 +275,6 @@ protected:
 	 */
 	void addLink(LinkPtr body, int id);
 
-private:
-
 	/**
 	 * User-defined identifier of the part
 	 */
@@ -256,9 +287,20 @@ private:
 	int orientationToParentSlot_;
 
 	/**
-	 * Bodies are now SDF Links
+	 * Map of links in SDF (previously bodies in Robogen).
+	 * Stored in a map so a specific link can be retrieved.
 	 */
 	std::map<int, LinkPtr> links_;
+
+	/**
+	 * Vector of joints
+	 */
+	std::vector< JointPtr > joints_;
+
+	/**
+	 * List of all posables (joints and links) in this model.
+	 */
+	std::vector< PosablePtr > posables_;
 
 };
 

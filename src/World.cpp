@@ -31,9 +31,9 @@ int main() {
 	component.initModel();
 
 	sb::SdfModel model("temp_bot");
-	const std::vector< sb::LinkPtr > &links = component.getLinks();
-	for (int i = 0; i < links.size(); ++i) {
-		model.addPosable(links[i]);
+	const std::vector< sb::PosablePtr > &posables = component.getPosables();
+	for (int i = 0; i < posables.size(); ++i) {
+		model.addPosable(posables[i]);
 	}
 
 	std::cout << "<?xml version=\"1.0\"?>" << '\n';

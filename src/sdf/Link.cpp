@@ -1,5 +1,5 @@
 /**
- * @TODO License
+ * TODO License
  */
 // stdlib
 #include <sstream>
@@ -11,7 +11,7 @@ namespace sdf_builder {
 
 Link::Link(std::string name) :
 	Posable(name),
-	inertial_(boost::shared_ptr< Inertial >(new Inertial))
+	inertial_(InertialPtr(new Inertial))
 {}
 
 Link::~Link()

@@ -14,24 +14,13 @@ namespace sdf_builder {
 
 class Geometry: public Element {
 public:
-	explicit Geometry(double mass = 0);
-
+	Geometry();
 	virtual ~Geometry();
 
 	/**
 	 * @return XML representation
 	 */
-	double mass() { return mass_; }
-
-	/**
-	 * @return XML representation
-	 */
-	std::string toXML();
-protected:
-	/**
-	 *
-	 */
-	double mass_;
+	virtual std::string toXML() = 0;
 };
 
 } /* namespace sdf_builder */

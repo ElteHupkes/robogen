@@ -23,7 +23,7 @@ public:
 	/**
 	 * @return Shared pointer to the Posable's pose
 	 */
-	boost::shared_ptr< Pose > pose();
+	PosePtr pose();
 
 	/**
 	 * @return Name of the posable
@@ -43,7 +43,7 @@ protected:
 	/**
 	 * Pose of the element
 	 */
-	boost::shared_ptr< Pose > pose_;
+	PosePtr pose_;
 };
 
 } /* namespace sdf_builder */

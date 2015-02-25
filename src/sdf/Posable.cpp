@@ -11,11 +11,11 @@ namespace sdf_builder {
 
 Posable::Posable(std::string name):
 	name_(name),
-	pose_(boost::shared_ptr< Pose >(new Pose))
+	pose_(PosePtr(new Pose))
 {}
 Posable::~Posable() {}
 
-boost::shared_ptr< Pose > Posable::pose() {
+PosePtr Posable::pose() {
 	return pose_;
 }
 

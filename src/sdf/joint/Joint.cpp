@@ -5,7 +5,7 @@
  *      Author: elte
  */
 
-#include "sdf/Joint.h"
+#include <sdf/joint/Joint.h>
 
 namespace sdf_builder {
 

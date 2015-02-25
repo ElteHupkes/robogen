@@ -13,7 +13,7 @@
 #include <sstream> // Common to use for toXML
 
 // sdfbuilder
-#include "sdf/SdfBuilder.h"
+#include <sdf/SdfBuilder.h>
 
 namespace sdf_builder {
 

@@ -10,11 +10,11 @@ PosableParent::PosableParent() {}
 
 PosableParent::~PosableParent() {}
 
-void PosableParent::addPosable( boost::shared_ptr< Posable > element ) {
+void PosableParent::addPosable( PosablePtr element ) {
 	posables_.push_back(element);
 }
 
-const std::vector< boost::shared_ptr< Posable > > PosableParent::posables() {
+const std::vector< PosablePtr > PosableParent::posables() {
 	return posables_;
 }
 

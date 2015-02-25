@@ -18,17 +18,17 @@ public:
 	/**
 	 * Adds a new posable element to this model
 	 */
-	void addPosable( boost::shared_ptr< Posable > element );
+	void addPosable( PosablePtr element );
 
 	/**
 	 * @return Posable elements in this parent
 	 */
-	const std::vector< boost::shared_ptr< Posable > > posables();
+	const std::vector< PosablePtr > posables();
 protected:
 	/**
 	 * List of posable elements in the model
 	 */
-	std::vector< boost::shared_ptr< Posable > > posables_;
+	std::vector< PosablePtr > posables_;
 };
 
 } /* namespace sdf_builder */

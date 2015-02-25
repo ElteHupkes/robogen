@@ -1,0 +1,5 @@
+#!/bin/bash
+cd build
+export ODE_PATH_BASE=/home/elte/Documents/Studie/MasterThesis/robogen/ode-0.12/install-dir/ 
+export ODE_INCLUDE_PATH=$ODE_PATH_BASE/include ODE_LIBRARIES=$ODE_PATH_BASE/lib/libode.a
+cmake -DCMAKE_BUILD_TYPE=Debug -G"Eclipse CDT4 - Unix Makefiles" -DCMAKE_ECLIPSE_VERSION=4.4 ../src/

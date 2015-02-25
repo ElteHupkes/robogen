@@ -11,11 +11,14 @@
 #include "evolution/representation/RobotRepresentation.h"
 
 // For testing
+#include "sdf/SdfBuilder.h"
 #include "sdf/Model.h"
 #include "sdf/Link.h"
+#include "sdf/shape/Collision.h"
 
 
 using namespace robogen;
+namespace sb = sdf_builder;
 
 // Exit function
 int exitRobogen(int exitCode) {
@@ -24,9 +27,11 @@ int exitRobogen(int exitCode) {
 }
 
 int main() {
-	boost::shared_ptr < sdf_builder::Model > model(new sdf_builder::Model("my_model") );
-	boost::shared_ptr < sdf_builder::Link > link( new sdf_builder::Link("my_link") );
+	sb::ModelPtr model(new sb::Model("my_model") );
+	sb::LinkPtr link( new sb::Link("my_link") );
+	sb::PosablePtr collision( new sb::Collision("my_collision") );
 
+	link->addPosable(collision);
 	model->addPosable(link);
 
 	std::cout << model->toXML() << std::endl;

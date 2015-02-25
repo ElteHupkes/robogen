@@ -1,5 +1,5 @@
 /*
- * @TODO License
+ * TODO License
  */
 
 #include "sdf/Inertial.h"

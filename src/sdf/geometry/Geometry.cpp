@@ -9,8 +9,7 @@
 
 namespace sdf_builder {
 
-Geometry::Geometry(double mass):
-	mass_(mass)
+Geometry::Geometry()
 {}
 
 Geometry::~Geometry()

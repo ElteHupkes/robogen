@@ -7,7 +7,6 @@
 #include "sdf/Posable.h"
 #include "sdf/PosableParent.h"
 #include "sdf/Inertial.h"
-#include "sdf/Collision.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -29,7 +28,7 @@ protected:
 	/**
 	 * Inertial properties of the link
 	 */
-	boost::shared_ptr< Inertial > inertial_;
+	InertialPtr inertial_;
 };
 
 } /* namespace sdf_builder */

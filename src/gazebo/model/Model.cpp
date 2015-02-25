@@ -43,7 +43,7 @@ void Model::setRootPosition(const Vector3& pos) {
 	}
 }
 
-void Model::translateRootPosition(const osg::Vec3& translation) {
+void Model::translateRootPosition(const Vector3& translation) {
 
 	Vector3 newPosition = this->getRootPosition() + translation;
 	this->setRootPosition(newPosition);
@@ -118,7 +118,7 @@ void Model::addLink(LinkPtr body, int id) {
 }
 
 LinkPtr Model::createLink(int label) {
-	LinkPtr b(new Link("link_"+boost::lexical_cast<std::string>(label)));
+	LinkPtr b(new Link("link_"+id_+boost::lexical_cast<std::string>(label)));
 	if (label >= 0) {
 		this->addLink(b, label);
 	}

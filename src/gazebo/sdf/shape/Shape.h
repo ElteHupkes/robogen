@@ -30,7 +30,7 @@ public:
 	/**
 	 * @return The geometry of this shape
 	 */
-	const GeometryPtr geometry();
+	GeometryPtr geometry();
 
 	/**
 	 * Sets the geometry

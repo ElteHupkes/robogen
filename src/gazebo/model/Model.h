@@ -152,13 +152,13 @@ public:
 	 * Translate the root part of the specified amount
 	 * Will force all the other bodies to translate accordingly.
 	 */
-	void translateRootPosition(const osg::Vec3& translation);
+	void translateRootPosition(const Vector3& translation);
 
 	/**
 	 * Sets the attitude of the root part (a quaternion).
 	 * Will force all the other bodies to rotate accordingly.
 	 */
-	void setRootAttitude(const osg::Quat& quat);
+	void setRootAttitude(const Quaternion& quat);
 
 	/**
 	 * @return the position of the given body

@@ -23,7 +23,7 @@ public:
 	/**
 	 * @return Posable elements in this parent
 	 */
-	const std::vector< PosablePtr > posables();
+	const std::vector< PosablePtr > & posables();
 protected:
 	/**
 	 * List of posable elements in the model

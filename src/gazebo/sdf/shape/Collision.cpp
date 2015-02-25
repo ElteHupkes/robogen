@@ -24,6 +24,7 @@ std::string Collision::toXML() {
 	std::stringstream out;
 
 	out << "<collision name=\"" << name_ << "\">"
+			<< pose_->toXML()
 			<< geometry_->toXML()
 			<< "</collision>";
 

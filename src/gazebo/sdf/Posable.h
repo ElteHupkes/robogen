@@ -27,7 +27,7 @@ public:
 	/**
 	 * @return Name of the posable
 	 */
-	const std::string name();
+	const std::string & name();
 
 	/**
 	 * Set the name of the posable

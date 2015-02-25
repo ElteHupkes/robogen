@@ -14,7 +14,7 @@ void PosableParent::addPosable( PosablePtr element ) {
 	posables_.push_back(element);
 }
 
-const std::vector< PosablePtr > PosableParent::posables() {
+const std::vector< PosablePtr > & PosableParent::posables() {
 	return posables_;
 }
 

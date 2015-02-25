@@ -23,6 +23,9 @@ class Inertial;
 class Box;
 class Collision;
 class Visual;
+class Element;
+class Axis;
+class Limit;
 
 // Typedefs
 typedef osg::Vec3d Vector3;
@@ -37,6 +40,9 @@ typedef boost::shared_ptr< Inertial > InertialPtr;
 typedef boost::shared_ptr< Box > BoxPtr;
 typedef boost::shared_ptr< Collision > CollisionPtr;
 typedef boost::shared_ptr< Visual > VisualPtr;
+typedef boost::shared_ptr< Element > ElementPtr;
+typedef boost::shared_ptr< Axis > AxisPtr;
+typedef boost::shared_ptr< Axis > LimitPtr;
 
 }
 

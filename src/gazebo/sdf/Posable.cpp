@@ -19,7 +19,7 @@ PosePtr Posable::pose() {
 	return pose_;
 }
 
-const std::string Posable::name() {
+const std::string & Posable::name() {
 	return name_;
 }
 

@@ -24,6 +24,7 @@ std::string Visual::toXML() {
 	std::stringstream out;
 
 	out << "<visual name=\"" << name_ << "\">"
+			<< pose_->toXML()
 			<< geometry_->toXML()
 			<< "</visual>";
 

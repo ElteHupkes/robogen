@@ -10,12 +10,21 @@
 
 #include <gazebo/sdf/Posable.h>
 #include <gazebo/sdf/Link.h>
+#include <gazebo/sdf/joint/axis/Axis.h>
 
 namespace sdf_builder {
 
 class Joint: public Posable {
 public:
-	Joint(std::string name);
+	/**
+	 * Initializes a joint without links
+	 */
+	Joint(std::string name),
+
+	/**
+	 * Initializes a joint with parent / child links
+	 */
+	Joint(std::string name, LinkPtr parent, LinkPtr child);
 	virtual ~Joint();
 
 	/**
@@ -27,6 +36,12 @@ public:
 	 * Link child
 	 */
 	boost::shared_ptr< Link > child;
+
+	/**
+	 * Axis
+	 */
+	boost::shared_ptr< Axis > axis;
+
 };
 
 } /* namespace sdf_builder */

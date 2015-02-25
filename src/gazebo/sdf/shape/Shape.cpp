@@ -21,7 +21,7 @@ Shape::Shape(std::string name):
 
 Shape::~Shape() {}
 
-const GeometryPtr Shape::geometry() {
+GeometryPtr Shape::geometry() {
 	return geometry_;
 }
 

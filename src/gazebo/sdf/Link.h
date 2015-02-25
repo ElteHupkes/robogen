@@ -41,7 +41,7 @@ public:
 	 * @param visual If true, also creates a box visual object
 	 */
 	void makeBox(double mass, double x, double y, double z,
-			bool collision = true, bool visual = false);
+			bool collision = true, bool visual = true);
 
 protected:
 	/**

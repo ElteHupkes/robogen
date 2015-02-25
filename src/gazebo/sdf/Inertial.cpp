@@ -38,8 +38,8 @@ std::string Inertial::toXML() {
 			<< "<iyy>" << nf(iyy) << "</iyy>"
 			<< "<iyz>" << nf(iyz) << "</iyz>"
 			<< "<izz>" << nf(izz) << "</izz>"
-		<< "</inertia>";
-	"</inertial>";
+		<< "</inertia>"
+	<< "</inertial>";
 
 	return out.str();
 }

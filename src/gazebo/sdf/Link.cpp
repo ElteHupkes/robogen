@@ -51,7 +51,7 @@ std::string Link::toXML() {
 	std::stringstream out;
 
 	out << "<link name=\"" << name_ << "\">";
-
+	out << pose_->toXML() << '\n';
 	out << inertial_->toXML() << '\n';
 
 	for (int i = 0, l = posables_.size(); i < l; ++i) {

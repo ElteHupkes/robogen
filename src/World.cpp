@@ -6,6 +6,7 @@
  */
 // External libraries
 #include <boost/shared_ptr.hpp>
+#include <vector>
 
 // Robogen libraries
 #include "evolution/representation/RobotRepresentation.h"
@@ -13,7 +14,7 @@
 // For testing
 #include "gazebo/SdfBuilder.h"
 #include "gazebo/sdf/Parts.h"
-#include "gazebo/model/components/perceptive/CoreComponentModel.h"
+#include "gazebo/model/components/HingeModel.h"
 
 
 using namespace robogen;
@@ -26,10 +27,19 @@ int exitRobogen(int exitCode) {
 }
 
 int main() {
-	sb::CoreComponentModel core("my_cc", false);
-	core.initModel();
+	sb::HingeModel component("my_cc");
+	component.initModel();
 
-	std::cout << core.getLinks()[0]->toXML() << std::endl;
+	sb::SdfModel model("temp_bot");
+	const std::vector< sb::LinkPtr > &links = component.getLinks();
+	for (int i = 0; i < links.size(); ++i) {
+		model.addPosable(links[i]);
+	}
+
+	std::cout << "<?xml version=\"1.0\"?>" << '\n';
+	std::cout << "<sdf version=\"1.5\">" << '\n';
+	std::cout << model.toXML();
+	std::cout << "</sdf>" << std::endl;
 
 //	if (argc != 2) {
 //		std::cout << "Call with robot reference file only for now." << std::endl;

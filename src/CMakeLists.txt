@@ -93,7 +93,7 @@ file (GLOB_RECURSE
 # All files for the SDF builder
 file(GLOB_RECURSE
 	 SDFBUILDER_SRC
-	 sdf/*.cpp
+	 gazebo/*.cpp
  )
 
 

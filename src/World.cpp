@@ -11,10 +11,9 @@
 #include "evolution/representation/RobotRepresentation.h"
 
 // For testing
-#include "sdf/SdfBuilder.h"
-#include "sdf/Model.h"
-#include "sdf/Link.h"
-#include "sdf/shape/Collision.h"
+#include "gazebo/SdfBuilder.h"
+#include "gazebo/sdf/Parts.h"
+#include "gazebo/model/components/perceptive/CoreComponentModel.h"
 
 
 using namespace robogen;
@@ -27,14 +26,10 @@ int exitRobogen(int exitCode) {
 }
 
 int main() {
-	sb::ModelPtr model(new sb::Model("my_model") );
-	sb::LinkPtr link( new sb::Link("my_link") );
-	sb::PosablePtr collision( new sb::Collision("my_collision") );
+	sb::CoreComponentModel core("my_cc", false);
+	core.initModel();
 
-	link->addPosable(collision);
-	model->addPosable(link);
-
-	std::cout << model->toXML() << std::endl;
+	std::cout << core.getLinks()[0]->toXML() << std::endl;
 
 //	if (argc != 2) {
 //		std::cout << "Call with robot reference file only for now." << std::endl;

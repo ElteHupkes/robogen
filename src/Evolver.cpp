@@ -229,7 +229,7 @@ void init(unsigned int seed, std::string outputDirectory,
 
 	neat = (conf->evolutionaryAlgorithm == EvolverConfiguration::HYPER_NEAT);
 	population.reset(new Population());
-	if (!population->init(referenceBot, conf->mu, mutator, growBodies,
+	if (!population->init(referenceBot, conf->mu, mutator, false,
 			(!(conf->useBrainSeed || neat)) ) ) {
 		std::cerr << "Error when initializing population!" << std::endl;
 		exitRobogen(EXIT_FAILURE);

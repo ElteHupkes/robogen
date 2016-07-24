@@ -65,12 +65,14 @@ enum result{
  * Relies on two extern variables. See .cpp.
  */
 unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
+		unsigned int nRobots,
 		boost::shared_ptr<RobogenConfig> configuration,
 		const robogenMessage::Robot &robotMessage, IViewer *viewer,
 		boost::random::mt19937 &rng);
 
 
 unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
+		unsigned int nRobots,
 		boost::shared_ptr<RobogenConfig> configuration,
 		const robogenMessage::Robot &robotMessage, IViewer *viewer,
 		boost::random::mt19937 &rng,

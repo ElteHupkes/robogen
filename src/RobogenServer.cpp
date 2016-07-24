@@ -28,6 +28,10 @@
  */
 #include <iostream>
 
+// For timing, breaks use on Windows
+#include <time.h>
+#include <sys/time.h>
+
 #include "config/ConfigurationReader.h"
 #include "config/RobogenConfig.h"
 #include "scenario/Scenario.h"
@@ -50,6 +54,16 @@
 #endif
 
 using namespace robogen;
+
+// For timing, Linux only
+double get_wall_time(){
+    struct timeval time;
+    if (gettimeofday(&time,NULL)){
+        //  Handle error
+        return 0;
+    }
+    return (double)time.tv_sec + (double)time.tv_usec * .000001;
+}
 
 // ODE World
 dWorldID odeWorld;
@@ -179,37 +193,52 @@ int main(int argc, char* argv[]) {
 						viewer = new Viewer(startPaused);
 					}
 
-					unsigned int simulationResult = runSimulations(scenario,
-							configuration, packet.getMessage()->robot(),
-							viewer, rng);
+					std::cout << "run,population_size,step_size,sim_time,real_time,factor" << std::endl;
+					double simTime = configuration->getSimulationTime();
+					double stepSize = configuration->getTimeStepLength();
+
+					for (unsigned int nRobots = 5; nRobots <= 50; nRobots += 5) {
+						for (unsigned int run = 0; run < 20; ++run) {
+							double before = get_wall_time();
+							unsigned int simulationResult = runSimulations(scenario, nRobots,
+									configuration, packet.getMessage()->robot(),
+									viewer, rng);
+							double after = get_wall_time();
+							double elapsed = after - before;
+
+
+							std::cout << run << "," << nRobots << "," << stepSize << "," <<
+									simTime << "," << elapsed << "," << (simTime / elapsed) << std::endl;
+
+							if (simulationResult == SIMULATION_FAILURE) {
+								exitRobogen(EXIT_FAILURE);
+							}
+						}
+					}
+
 
 					if(viewer != NULL) {
 						delete viewer;
 					}
 
-
-					if (simulationResult == SIMULATION_FAILURE) {
-						exitRobogen(EXIT_FAILURE);
-					}
-
 					// ---------------------------------------
 					// Compute fitness
 					// ---------------------------------------
-					double fitness;
-					if (simulationResult == CONSTRAINT_VIOLATED) {
-						fitness = MIN_FITNESS;
-					} else {
-						fitness = scenario->getFitness();
-					}
-					std::cout << "Fitness for the current solution: " << fitness
-							<< std::endl << std::endl;
+//					double fitness;
+//					if (simulationResult == CONSTRAINT_VIOLATED) {
+//						fitness = MIN_FITNESS;
+//					} else {
+//						fitness = scenario->getFitness();
+//					}
+//					std::cout << "Fitness for the current solution: " << fitness
+//							<< std::endl << std::endl;
 
 					// ---------------------------------------
 					// Send reply to EA
 					// ---------------------------------------
 					boost::shared_ptr<robogenMessage::EvaluationResult> evalResultPacket(
 							new robogenMessage::EvaluationResult());
-					evalResultPacket->set_fitness(fitness);
+					evalResultPacket->set_fitness(0);
 					evalResultPacket->set_id(packet.getMessage()->robot().id());
 					ProtobufPacket<robogenMessage::EvaluationResult> evalResult;
 					evalResult.setMessage(evalResultPacket);

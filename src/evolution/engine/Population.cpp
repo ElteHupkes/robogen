@@ -53,22 +53,24 @@ bool Population::init(boost::shared_ptr<RobotRepresentation> robot, int popSize,
 
 	// fill population vector
 	for (int i = 0; i < popSize; i++) {
-
-		if (i == 0 || randomizeBrains) {
-			this->push_back(
-				boost::shared_ptr<RobotRepresentation>(
-						new RobotRepresentation(*robot.get())));
-
-			if (randomizeBrains) {
-				mutator->randomizeBrain(this->back());
-			}
-		} else { // i > 0 and !randomizeBrains, create mutated copy of seed
-			this->push_back( mutator->createOffspring(robot)[0] );
-		}
-
-		if (growBodies) {
-			mutator->growBodyRandomly(this->back());
-		}
+		this->push_back(
+			boost::shared_ptr<RobotRepresentation>(
+					new RobotRepresentation(*robot.get())));
+//		if (i == 0 || randomizeBrains) {
+//			this->push_back(
+//				boost::shared_ptr<RobotRepresentation>(
+//						new RobotRepresentation(*robot.get())));
+//
+//			if (randomizeBrains) {
+//				mutator->randomizeBrain(this->back());
+//			}
+//		} else { // i > 0 and !randomizeBrains, create mutated copy of seed
+//			this->push_back( mutator->createOffspring(robot)[0] );
+//		}
+//
+//		if (growBodies) {
+//			mutator->growBodyRandomly(this->back());
+//		}
 		//BodyVerifier::fixRobotBody(this->back());
 	}
 	return true;

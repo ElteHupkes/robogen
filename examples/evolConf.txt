@@ -1,11 +1,11 @@
 simulatorConfFile=conf.txt
-referenceRobotFile=simpleRobot.txt
-mu=20
+referenceRobotFile=walkingStarfish.txt
+mu=1
 lambda=20
 selection=deterministic-tournament
 replacement=plus
-tournamentSize=2
-numGenerations=40
+tournamentSize=1
+numGenerations=1
 evolutionMode=brain
 pBrainMutate=.3
 brainSigma=.7

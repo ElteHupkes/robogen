@@ -1,10 +1,10 @@
 scenario=racing
 timeStep=0.005
-simulationTime=8.0
-actuationFrequency=25
+simulationTime=5.0
+actuationFrequency=5
 terrainType=flat
-terrainLength=2
-terrainWidth=2
+terrainLength=100
+terrainWidth=100
 terrainFriction=1.0
 sensorNoiseLevel=0.0
 motorNoiseLevel=0.0

@@ -71,7 +71,7 @@ public:
 	 * @param robot
 	 */
 	virtual bool init(dWorldID odeWorld, dSpaceID odeSpace,
-			boost::shared_ptr<Robot> robot);
+			std::vector< boost::shared_ptr<Robot> > robots);
 
 	/**
 	 * Clears unused scenario (so that robot can be freed - joints need to be
@@ -168,7 +168,7 @@ private:
 	/**
 	 * Robot
 	 */
-	boost::shared_ptr<Robot> robot_;
+	std::vector< boost::shared_ptr<Robot> > robots_;
 
 	/**
 	 * Robogen config

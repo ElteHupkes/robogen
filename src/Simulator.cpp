@@ -43,15 +43,17 @@ extern dJointGroupID odeContactGroup;
 namespace robogen{
 
 unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
+		unsigned int nRobots,
 		boost::shared_ptr<RobogenConfig> configuration,
 		const robogenMessage::Robot &robotMessage,
 		IViewer *viewer, boost::random::mt19937 &rng) {
 	boost::shared_ptr<FileViewerLog> log;
-	return runSimulations(scenario, configuration,
+	return runSimulations(scenario, nRobots, configuration,
 			robotMessage, viewer, rng, false, log);
 }
 
 unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
+		unsigned int nRobots,
 		boost::shared_ptr<RobogenConfig> configuration,
 		const robogenMessage::Robot &robotMessage, IViewer *viewer,
 		boost::random::mt19937 &rng,
@@ -62,7 +64,8 @@ unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
 	boost::random::normal_distribution<float> normalDistribution;
 	boost::random::uniform_01<float> uniformDistribution;
 
-	while (scenario->remainingTrials() && (!constraintViolated)) {
+
+	while (/*scenario->remainingTrials() && */(!constraintViolated)) {
 
 		// ---------------------------------------
 		// Simulator initialization
@@ -94,11 +97,34 @@ unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
 		// ---------------------------------------
 		// Generate Robot
 		// ---------------------------------------
-		boost::shared_ptr<Robot> robot(new Robot);
-		if (!robot->init(odeWorld, odeSpace, robotMessage)) {
-			std::cout << "Problems decoding the robot. Quit."
-					<< std::endl;
-			return SIMULATION_FAILURE;
+		std::vector< boost::shared_ptr<Robot> > robots;
+
+		// Store motors and neural networks per robot
+		std::vector< std::vector< boost::shared_ptr<Motor> > > allMotors;
+		std::vector< std::vector< boost::shared_ptr<Sensor> > > allSensors;
+		std::vector< boost::shared_ptr<NeuralNetwork> > neuralNetworks;
+
+		// Store body parts in one big list (for visualization)
+		std::vector<boost::shared_ptr<Model> > bodyParts;
+
+
+		for (unsigned int i = 0; i < nRobots; ++i) {
+			boost::shared_ptr<Robot> robot(new Robot);
+			if (!robot->init(odeWorld, odeSpace, robotMessage)) {
+				std::cout << "Problems decoding the robot. Quit."
+						<< std::endl;
+				return SIMULATION_FAILURE;
+			}
+
+			robots.push_back(robot);
+			allMotors.push_back(robot->getMotors());
+			neuralNetworks.push_back(robot->getBrain());
+			allSensors.push_back(robot->getSensors());
+
+			std::vector< boost::shared_ptr<Model> > robot_parts = robot->getBodyParts();
+			for (unsigned int j = 0; j < robot_parts.size(); ++j) {
+				bodyParts.push_back(robot_parts[j]);
+			}
 		}
 
 #ifdef DEBUG_MASSES
@@ -121,68 +147,67 @@ unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
 		std::cout << "total mass is " << totalMass * 1000. << "g" << std::endl;
 #endif
 
-
-
 		if (log) {
-			if (!log->init(robot, configuration)) {
+			if (!log->init(robots[0], configuration)) {
 				std::cout << "Problem initializing log!" << std::endl;
 				return SIMULATION_FAILURE;
 			}
 		}
 
 
-
-
-		std::cout << "Evaluating individual " << robot->getId()
-				<< ", trial: " << scenario->getCurTrial()
-				<< std::endl;
+//		std::cout << "Evaluating individual " << robot->getId()
+//				<< ", trial: " << scenario->getCurTrial()
+//				<< std::endl;
 
 		// Register sensors
-		std::vector<boost::shared_ptr<Sensor> > sensors =
-				robot->getSensors();
-		std::vector<boost::shared_ptr<TouchSensor> > touchSensors;
-		for (unsigned int i = 0; i < sensors.size(); ++i) {
-			if (boost::dynamic_pointer_cast<TouchSensor>(
-					sensors[i])) {
-				touchSensors.push_back(
-						boost::dynamic_pointer_cast<TouchSensor>(
-								sensors[i]));
-			}
-		}
+//		std::vector<boost::shared_ptr<Sensor> > sensors =
+//				robot->getSensors();
+
+		// Variable seems to be unused?
+//		std::vector<boost::shared_ptr<TouchSensor> > touchSensors;
+//		for (unsigned int i = 0; i < sensors.size(); ++i) {
+//			if (boost::dynamic_pointer_cast<TouchSensor>(
+//					sensors[i])) {
+//				touchSensors.push_back(
+//						boost::dynamic_pointer_cast<TouchSensor>(
+//								sensors[i]));
+//			}
+//		}
 
 		// Register robot motors
-		std::vector<boost::shared_ptr<Motor> > motors =
-				robot->getMotors();
+//		std::vector<boost::shared_ptr<Motor> > motors =
+//				robot->getMotors();
 
+		// Disable cap checking for benchmark
 		// set cap for checking motor burnout
-		for(unsigned int i=0; i< motors.size(); i++) {
-			motors[i]->setMaxDirectionShiftsPerSecond(
-						configuration->getMaxDirectionShiftsPerSecond());
-
-		}
+//		for(unsigned int i=0; i< motors.size(); i++) {
+//			motors[i]->setMaxDirectionShiftsPerSecond(
+//						configuration->getMaxDirectionShiftsPerSecond());
+//
+//		}
 
 		// Register brain and body parts
-		boost::shared_ptr<NeuralNetwork> neuralNetwork =
-				robot->getBrain();
-		std::vector<boost::shared_ptr<Model> > bodyParts =
-				robot->getBodyParts();
+//		boost::shared_ptr<NeuralNetwork> neuralNetwork =
+//				robot->getBrain();
+//		std::vector<boost::shared_ptr<Model> > bodyParts =
+//				robot->getBodyParts();
 
 		// Initialize scenario
-		if (!scenario->init(odeWorld, odeSpace, robot)) {
+		if (!scenario->init(odeWorld, odeSpace, robots)) {
 			std::cout << "Cannot initialize scenario. Quit."
 					<< std::endl;
 			return SIMULATION_FAILURE;
 		}
 
-		if((configuration->getObstacleOverlapPolicy() ==
-				RobogenConfig::CONSTRAINT_VIOLATION) &&
-				scenario->wereObstaclesRemoved()) {
-			std::cout << "Using 'contraintViolation' obstacle overlap policy,"
-					<< " and ostacles were removed, so will return min fitness."
-					<< std::endl;
-			constraintViolated = true;
-			break;
-		}
+//		if((configuration->getObstacleOverlapPolicy() ==
+//				RobogenConfig::CONSTRAINT_VIOLATION) &&
+//				scenario->wereObstaclesRemoved()) {
+//			std::cout << "Using 'contraintViolation' obstacle overlap policy,"
+//					<< " and ostacles were removed, so will return min fitness."
+//					<< std::endl;
+//			constraintViolated = true;
+//			break;
+//		}
 
 
 		// Setup environment
@@ -244,9 +269,9 @@ unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
 				break;
 			}
 
-			if ((count++) % 500 == 0) {
-				std::cout << "." << std::flush;
-			}
+//			if ((count++) % 500 == 0) {
+//				std::cout << "." << std::flush;
+//			}
 
 			// Collision detection
 			dSpaceCollide(odeSpace, collisionData.get(), odeCollisionCallback);
@@ -263,42 +288,43 @@ unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
 				break;
 			}
 
-			if (configuration->isCapAlleration()) {
-				dBodyID rootBody =
-						robot->getCoreComponent()->getRoot()->getBody();
-				const dReal *angVel, *linVel;
-
-				angVel = dBodyGetAngularVel(rootBody);
-				linVel = dBodyGetLinearVel(rootBody);
-
-				if(t > 0) {
-					// TODO make this use the step size and update default
-					// limits to account for this
-					double angAccel = dCalcPointsDistance3(
-							angVel, previousAngVel);
-					double linAccel = dCalcPointsDistance3(
-							linVel, previousLinVel);
-
-					if(angAccel > configuration->getMaxAngularAcceleration() ||
-					   linAccel > configuration->getMaxLinearAcceleration()) {
-
-						printf("EVALUATION CANCELED: max accel");
-						printf(" exceeded at time %f.", t);
-						printf(" Angular accel: %f, Linear accel: %f.\n",
-								angAccel, linAccel);
-						printf("Will give %f fitness.\n", MIN_FITNESS);
-						constraintViolated = true;
-						break;
-					}
-
-				}
-
-				// save current velocities as previous
-				for(unsigned int j=0; j<3; j++) {
-					previousAngVel[j] = angVel[j];
-					previousLinVel[j] = linVel[j];
-				}
-			}
+			// Disabling this, not capping acceleration for the benchmark
+//			if (configuration->isCapAlleration()) {
+//				dBodyID rootBody =
+//						robot->getCoreComponent()->getRoot()->getBody();
+//				const dReal *angVel, *linVel;
+//
+//				angVel = dBodyGetAngularVel(rootBody);
+//				linVel = dBodyGetLinearVel(rootBody);
+//
+//				if(t > 0) {
+//					// TODO make this use the step size and update default
+//					// limits to account for this
+//					double angAccel = dCalcPointsDistance3(
+//							angVel, previousAngVel);
+//					double linAccel = dCalcPointsDistance3(
+//							linVel, previousLinVel);
+//
+//					if(angAccel > configuration->getMaxAngularAcceleration() ||
+//					   linAccel > configuration->getMaxLinearAcceleration()) {
+//
+//						printf("EVALUATION CANCELED: max accel");
+//						printf(" exceeded at time %f.", t);
+//						printf(" Angular accel: %f, Linear accel: %f.\n",
+//								angAccel, linAccel);
+//						printf("Will give %f fitness.\n", MIN_FITNESS);
+//						constraintViolated = true;
+//						break;
+//					}
+//
+//				}
+//
+//				// save current velocities as previous
+//				for(unsigned int j=0; j<3; j++) {
+//					previousAngVel[j] = angVel[j];
+//					previousLinVel[j] = linVel[j];
+//				}
+//			}
 
 
 			float networkInput[MAX_INPUT_NEURONS];
@@ -318,81 +344,93 @@ unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
 				}
 			}
 
-			if(((count - 1) % configuration->getActuationPeriod()) == 0) {
-				// Feed neural network
-				for (unsigned int i = 0; i < sensors.size(); ++i) {
-					networkInput[i] = sensors[i]->read();
-
-					// Add sensor noise: Gaussian with std dev of
-					// sensorNoiseLevel * actualValue
-					if (configuration->getSensorNoiseLevel() > 0.0) {
-						networkInput[i] += (normalDistribution(rng) *
-								configuration->getSensorNoiseLevel() *
-								networkInput[i]);
-					}
-				}
-				if (log) {
-					log->logSensors(networkInput, sensors.size());
-				}
-
-
-				::feed(neuralNetwork.get(), &networkInput[0]);
-
-				// Step the neural network
-				::step(neuralNetwork.get(), t);
-
-				// Fetch the neural network ouputs
-				::fetch(neuralNetwork.get(), &networkOutputs[0]);
-
-				// Send control to motors
-				for (unsigned int i = 0; i < motors.size(); ++i) {
-
-					// Add motor noise:
-					// uniform in range +/- motorNoiseLevel * actualValue
-					if(configuration->getMotorNoiseLevel() > 0.0) {
-						networkOutputs[i] += (
-									((uniformDistribution(rng) *
-									2.0 *
-									configuration->getMotorNoiseLevel())
-									- configuration->getMotorNoiseLevel())
-									* networkOutputs[i]);
-					}
-
-
-					if (boost::dynamic_pointer_cast<
-							RotationMotor>(motors[i])) {
-						boost::dynamic_pointer_cast<RotationMotor>(motors[i]
-						   )->setDesiredVelocity(networkOutputs[i], step *
-								   	   	  configuration->getActuationPeriod());
-					} else if (boost::dynamic_pointer_cast<
-							ServoMotor>(motors[i])) {
-						boost::dynamic_pointer_cast<ServoMotor>(motors[i]
-						   )->setDesiredPosition(networkOutputs[i], step *
-								configuration->getActuationPeriod());
-						//motor->setPosition(networkOutputs[i], step *
-						//		configuration->getActuationPeriod());
-					}
-
-				}
-
-				if(log) {
-					log->logMotors(networkOutputs, motors.size());
-				}
-			}
-
 			bool motorBurntOut = false;
-			for (unsigned int i = 0; i < motors.size(); ++i) {
-				motors[i]->step( step ) ; //* configuration->getActuationPeriod() );
 
-				// TODO find a cleaner way to do this
-				// for now will reuse accel cap infrastructure
-				if (motors[i]->isBurntOut()) {
-					std::cout << "Motor burnt out, will terminate now "
-							<< std::endl;
-					motorBurntOut = true;
-					//constraintViolated = true;
+			for (unsigned int j = 0; j < robots.size(); ++j) {
+				boost::shared_ptr< NeuralNetwork > neuralNetwork = neuralNetworks[j];
+				std::vector< boost::shared_ptr<Sensor> > sensors = allSensors[j];
+				std::vector< boost::shared_ptr<Motor> > motors = allMotors[j];
+
+				if(((count - 1) % configuration->getActuationPeriod()) == 0) {
+					// Feed neural network
+					for (unsigned int i = 0; i < sensors.size(); ++i) {
+						networkInput[i] = sensors[i]->read();
+
+						// Add sensor noise: Gaussian with std dev of
+						// sensorNoiseLevel * actualValue
+						if (configuration->getSensorNoiseLevel() > 0.0) {
+							networkInput[i] += (normalDistribution(rng) *
+									configuration->getSensorNoiseLevel() *
+									networkInput[i]);
+						}
+					}
+					if (log) {
+						log->logSensors(networkInput, sensors.size());
+					}
+
+
+					::feed(neuralNetwork.get(), &networkInput[0]);
+
+					// Step the neural network
+					::step(neuralNetwork.get(), t);
+
+					// Fetch the neural network outputs
+					::fetch(neuralNetwork.get(), &networkOutputs[0]);
+
+					// Send control to motors
+					for (unsigned int i = 0; i < motors.size(); ++i) {
+
+						// Add motor noise:
+						// uniform in range +/- motorNoiseLevel * actualValue
+						if(configuration->getMotorNoiseLevel() > 0.0) {
+							networkOutputs[i] += (
+										((uniformDistribution(rng) *
+										2.0 *
+										configuration->getMotorNoiseLevel())
+										- configuration->getMotorNoiseLevel())
+										* networkOutputs[i]);
+						}
+
+
+						if (boost::dynamic_pointer_cast<
+								RotationMotor>(motors[i])) {
+							boost::dynamic_pointer_cast<RotationMotor>(motors[i]
+							   )->setDesiredVelocity(networkOutputs[i], step *
+											  configuration->getActuationPeriod());
+						} else if (boost::dynamic_pointer_cast<
+								ServoMotor>(motors[i])) {
+							boost::dynamic_pointer_cast<ServoMotor>(motors[i]
+							   )->setDesiredPosition(networkOutputs[i], step *
+									configuration->getActuationPeriod());
+							//motor->setPosition(networkOutputs[i], step *
+							//		configuration->getActuationPeriod());
+						}
+
+					}
+
+					if(log) {
+						log->logMotors(networkOutputs, motors.size());
+					}
 				}
 
+				motorBurntOut = false;
+				for (unsigned int i = 0; i < motors.size(); ++i) {
+					motors[i]->step( step ) ; //* configuration->getActuationPeriod() );
+
+					// TODO find a cleaner way to do this
+					// for now will reuse accel cap infrastructure
+					if (motors[i]->isBurntOut()) {
+						std::cout << "Motor burnt out, will terminate now "
+								<< std::endl;
+						motorBurntOut = true;
+						//constraintViolated = true;
+					}
+
+				}
+
+				if(constraintViolated || motorBurntOut) {
+					break;
+				}
 			}
 
 			if(constraintViolated || motorBurntOut) {
@@ -452,9 +490,12 @@ unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
 		// Destroy the ODE engine
 		dCloseODE();
 
-		if(constraintViolated || onlyOnce) {
-			break;
-		}
+//		if(constraintViolated || onlyOnce) {
+//			break;
+//		}
+
+		// Only ever run once for benchmark
+		break;
 	}
 	if(constraintViolated)
 		return CONSTRAINT_VIOLATED;

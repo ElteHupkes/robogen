@@ -484,7 +484,7 @@ int main(int argc, char *argv[]) {
 				recordDirectoryName);
 	}
 
-	unsigned int simulationResult = runSimulations(scenario, configuration,
+	unsigned int simulationResult = runSimulations(scenario, 1, configuration,
 			robotMessage, viewer, rng, true, log);
 
 	if (viewer != NULL) {

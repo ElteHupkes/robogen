@@ -36,6 +36,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <locale>
 #include <stack>
 #include <queue>
 #include <boost/regex.hpp>
@@ -299,8 +300,12 @@ bool robotTextFileReadParamsLine(std::ifstream &file, std::string &node,
 		boost::trim(paramsString);
 		std::vector<std::string> strs;
 		boost::split(strs, paramsString, boost::is_any_of(" "));
+
 		for (unsigned int i=0; i<strs.size(); i++) {
-			params.push_back(std::atof(strs[i].c_str()));
+			std::istringstream istr(strs[i]);
+			double out;
+			istr >> out;
+			params.push_back(out);
 		}
 		return true;
 	} else if (boost::regex_match(line.c_str(), match, biasRx)) {

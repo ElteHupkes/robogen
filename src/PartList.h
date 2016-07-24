@@ -44,6 +44,7 @@
 	#define TOUCH_SENSORS_ENABLED
 #endif
 
+#define TOUCH_SENSORS_ENABLED
 
 namespace robogen {
 
